@@ -1,31 +1,76 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="sr">
-<head>
-  <meta charset="UTF-8">
-  <title>{% block title %}Prijava{% endblock %}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link rel="icon" href="{% static 'lims/img/favicon.png' %}">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700|Nunito:300,400,600,700|Poppins:300,400,500,600,700" rel="stylesheet">
-
-  <!-- Vendor CSS Files -->
-  <link href="{% static 'lims/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-  <link href="{% static 'lims/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
-  <link href="{% static 'lims/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
-  <link href="{% static 'lims/vendor/quill/quill.snow.css' %}" rel="stylesheet">
-  <link href="{% static 'lims/vendor/quill/quill.bubble.css' %}" rel="stylesheet">
-  <link href="{% static 'lims/vendor/remixicon/remixicon.css' %}" rel="stylesheet">
-  <link href="{% static 'lims/vendor/simple-datatables/style.css' %}" rel="stylesheet">
-
-  <!-- Main CSS -->
-  <link href="{% static 'lims/css/style.css' %}" rel="stylesheet">
-</head>
+    <head>
+        <title>{% block title %} Pocetna {% endblock %}</title>
+        <meta charset="utf-8">
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <meta content="" name="description">
+        <meta content="" name="keywords">
+    
+        <!-- Favicon -->
+        <link rel="icon" href="{% static 'lims/img/favicon-32x32.png' %}" type="image/x-icon">
+    
+        <!-- Google Fonts -->
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    
+        <!-- Vendor CSS Files -->
+        <link href="{% static 'lims/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'lims/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+        <link href="{% static 'lims/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+        <link href="{% static 'lims/vendor/quill/quill.snow.css' %}" rel="stylesheet">
+        <link href="{% static 'lims/vendor/quill/quill.bubble.css' %}" rel="stylesheet">
+        <link href="{% static 'lims/vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+        <link href="{% static 'lims/vendor/simple-datatables/style.css' %}" rel="stylesheet">
+    
+        <!-- Select2 CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
+    
+        <!-- DataTables CSS -->
+        {% comment %} <link href="https://cdn.datatables.net/v/dt/dt-2.0.8/datatables.min.css" rel="stylesheet"> {% endcomment %}
+        <link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet">
+        
+        <!-- Template Main CSS File -->
+        <link href="{% static 'lims/css/style.css' %}" rel="stylesheet">
+      </head>
 <body class="bg-light">
 
   {% block content %}
   {% endblock %}
 
-  <script src="{% static 'lims/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <!------- Scripts -------->
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+    <!-- Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+    <!-- Date sorting plugin -->
+    <script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="{% static 'lims/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!-- Vendor JS Files -->
+    <script src="{% static 'lims/vendor/apexcharts/apexcharts.min.js' %}"></script>
+    <script src="{% static 'lims/vendor/chart.js/chart.umd.js' %}"></script>
+    <script src="{% static 'lims/vendor/echarts/echarts.min.js' %}"></script>
+    <script src="{% static 'lims/vendor/quill/quill.min.js' %}"></script>
+    <script src="{% static 'lims/vendor/simple-datatables/simple-datatables.js' %}"></script>
+    <script src="{% static 'lims/vendor/tinymce/tinymce.min.js' %}"></script>
+    <script src="{% static 'lims/vendor/php-email-form/validate.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/umd/simple-datatables.js"></script>
+
+
+    <!-- Template Main JS File -->
+    <script src="{% static 'lims/js/main.js' %}"></script>
 </body>
 </html>
