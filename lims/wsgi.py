@@ -11,9 +11,9 @@ import os
 import environ
 
 from django.core.wsgi import get_wsgi_application
-
 env = environ.Env()
-environ.Env.read_env()
+# Dodaj apsolutnu putanju do .env fajla
+environ.Env.read_env('/var/www/lims/.env')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', env('DJANGO_SETTINGS_MODULE'))
 
 application = get_wsgi_application()
