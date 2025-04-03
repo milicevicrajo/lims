@@ -11,8 +11,8 @@ ALLOWED_HOSTS = ['www.imslims.site', 'imslims.site', '185.166.39.94','0.0.0.0:80
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'imslimsdb',
-        'USER': 'admin',
+        'NAME': 'limsdb',
+        'USER': 'limsuser',
         'PASSWORD': 'Soundcraft',
         'HOST': 'localhost',
         'PORT': '',
