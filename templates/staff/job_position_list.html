@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %} Pozicije {% endblock %}
+{% block content %}
+
+<div class="pagetitle">
+  <h1>{{ title }}</h1>  
+</div>
+
+<section class="section">
+  <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title">Tabela</h5>
+              <a href="{% url 'job_position_create' %}" class="text-success" style="font-size: 1.05em;">
+                <i class="bi bi-bag-plus"></i> Dodaj radno mesto
+              </a>
+            </div>   
+          
+              <!-- FILTER FORM -->
+              <form id="filter-form" method="get" class="row g-3 align-items-end pb-3">
+                {% for field in filter.form %}
+                    <div class="col-3">
+                        <label for="{{ field.id_for_label }}" class="col-form-label">{{ field.label_tag }}</label>
+                        <div>
+                            {{ field|add_class:'form-control' }}
+                        </div>
+                    </div>
+                {% endfor %}
+                <!-- Hidden inputs for preserving sorting -->
+                <input type="hidden" name="type" value="{{ request.GET.type|default_if_none:'' }}">
+                <input type="hidden" name="sort" value="{{ request.GET.sort|default_if_none:'' }}">
+              </form>
+
+
+            <table id="DataTableJob" class="display">
+              <thead>
+                <tr>
+                  <th>Naziv</th>
+                  <th>Broj radnog mesta</th>                    
+                  <th>Podkategorija</th>
+                  <th>Tip radnog mesta</th>
+                  <th>Opis radnog procesa</th>
+                  <th>AKCIJE</th>  
+                
+                </tr>
+              </thead>
+              <tbody>
+                {% for position in job_positions %}
+                  <tr>
+                    <td>{{ position.title }}</td>
+                    <td>{{ position.code }}</td>
+                    <td>{{ position.subcategory }}</td>
+                    <td>{{ position.get_job_type_display  }}</td>
+                    <td>
+                      <a href="{% url 'job_position_detail' position.id %}">Opis radnog procesa</a>
+                    </td>
+                    <td style="width:20px">
+                      <div class="d-flex align-items-center"> <!-- Flex row for horizontal alignment -->
+                  
+                          <!-- Edit Button -->
+                          <a href="{% url 'job_position_update' position.pk %}" class="text-success me-2" style="margin-bottom: 0px;">
+                              <i class="ri-edit-2-line"></i>  
+                          </a>
+                  
+                          <!-- Delete Form -->
+                          <form action="{% url 'job_position_delete' position.pk %}?next={{ request.path }}" method="post" style="display:inline;">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-link text-danger p-0 m-0" onclick="return confirm('Da li ste sigurni da želite da uklonite ovu osobu sa spiska osoblja?');">
+                                  <i class="ri-delete-bin-2-line"></i>
+                              </button>
+                          </form>
+                  
+                      </div>
+                  </td>
+                  
+                  </tr>
+                {% empty %}
+                  <tr>
+                      <td colspan="7">Nema unetih standarda</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,669 @@
+{% extends 'base.html' %}
+{% block title %}Karton {{equipment.card_number}}{% endblock %}
+
+{% block content %}
+    <div class="pagetitle">
+        <h1>Karton opreme {{ equipment.card_number }}</h1>
+    </div><!-- End Page Title -->
+
+    <section class="section profile">
+        <div class="row">
+            <div class="col-xl-7">
+                <div class="card">
+                    <div class="card-body pt-3">
+                        <!-- Bordered Tabs -->
+                        <ul class="nav nav-tabs nav-tabs-bordered">
+
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Karton opreme</button>
+                        </li>
+        
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#etaloniranje">Etaloniranje</button>
+                        </li>
+        
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#interna-kontrola">Interna kontrola</button>
+                        </li>
+        
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#popravke">Popravke</button>
+                        </li>
+
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sva-etaloniranja">Sva etaloniranja</button>
+                        </li>
+        
+                        </ul>
+                        <div class="tab-content pt-2">
+
+        <!-- Oprema tabovi, DETALJI OPREME -->
+                        <div class="tab-pane fade show active profile-overview" id="profile-overview">
+                            
+                            <h5 class="card-title">Detalji opreme</h5>
+                            <table class="table table-striped">
+                                <tbody>
+                                  <tr>
+                                    <td>Broj kartona</td>
+                                    <td>{{ equipment.card_number }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Naziv opreme</th>
+                                    <td>{{ equipment.name }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Opseg / Tačnost</th>
+                                    <td>{{ equipment.scope }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Proizvođač</th>
+                                    <td>{{ equipment.manufacturer }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Tip</th>
+                                    <td>{{ equipment.type }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Model</th>
+                                    <td>{{ equipment.model }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Serijski broj</th>
+                                    <td>{{ equipment.serial_number }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Inventarski broj</th>
+                                    <td>{{ equipment.inventory_number }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Datum nabavke</th>
+                                    <td>{{ equipment.purchase_date|date:"d.m.Y" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Datum stavljanja u upotrebu</th>
+                                    <td>{{ equipment.usage_start_date|date:"d.m.Y" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Odgovorna laboratorija</th>
+                                    <td>{{ equipment.responsible_laboratory.name }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Laboratorije u kojima se oprema koristi</th>
+                                    <td>
+                                      <ul class="mb-0">
+                                        {% for lab in equipment.laboratory.all %}
+                                          <li>{{ lab.name }}</li>
+                                        {% empty %}
+                                          <li><em>Nema povezanih laboratorija</em></li>
+                                        {% endfor %}
+                                      </ul>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Lokacija opreme</th>
+                                    <td>{{ equipment.location }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Ostale karakteristike</th>
+                                    <td>{{ equipment.other }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Glavna / Pomoćna</th>
+                                    <td>{{ equipment.get_equipment_type_display }}</td>
+                                  </tr>
+                                  {% if equipment.equipment_type == 'Pomocna' %}
+                                  <tr>
+                                    <td scope="row">Povezana glavna oprema</th>
+                                    <td>{{ equipment.main_equipment }}</td>
+                                  </tr>
+                                  {% endif %}
+                                  <tr>
+                                    <td scope="row">Grupa</th>
+                                    <td>{{ equipment.group }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Da li se kalibriše</th>
+                                    <td>{% if equipment.is_calibrated %}Da{% else %}Ne{% endif %}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Rashodovana</th>
+                                    <td>{% if equipment.is_rashodovana %}Da{% else %}Ne{% endif %}</td>
+                                  </tr>
+                                  <tr>
+                                    <td scope="row">Poslednja izmena</th>
+                                    <td>{{ equipment.last_modified|date:"d.m.Y H:i" }}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                              
+                            <hr />
+
+                            <div class="col-12 col-12-medium">
+                                <div class="button-group" style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                
+                                    <a href="{% url 'calibration_add' equipment.id %}" class="btn btn-primary" style="width: 33%">Dodaj etaloniranje</a>
+                                    <a href="{% url 'internal_control_add' equipment.id %}" class="btn btn-primary" style="width: 33%">Dodaj IK</a>
+                                    <a href="{% url 'repair_add' equipment.id %}" class="btn btn-primary" style="width: 33%">Dodaj popravku</a>
+                
+                                </div>
+                                <div class="button-group" style="display: flex; justify-content: space-between;">
+                
+                                    {% comment %} <a href="{% url 'download_populated_document' %}?pk={{ equipment.id }}&doc_type=type1" class="btn btn-info" style="width: 24.5%">Preuzmi KO</a> {% endcomment %}
+                
+                                    <a href="{% url 'equipment_edit' equipment.id %}" class="btn btn-warning" style="width: 24.5%">Ispravi KO</a>
+
+                                    <button onclick="changeStatus({{ equipment.id }})" class="btn btn-warning" style="width: 24.5%">
+                                        {% if equipment.is_rashodovana %}
+                                            Vrati u upotrebu
+                                        {% else %}
+                                            Rashoduj
+                                        {% endif %}
+                                    </button>
+
+                                    <form action="{% url 'equipment_delete' equipment.id %}" method="post" style="width: 24.5%;">
+                                        {% csrf_token %}
+                                        <input type="submit" value="Obriši" class="btn btn-danger" style="width: 100%;" onclick="return confirm('Da li ste sigurni da želite da uklonite ovaj karton opreme?');">
+                                    </form>
+                                </div>         
+                            </div>
+
+                            <hr />
+                        </div>
+                        
+        <!-- Oprema tabovi, ETALONIRANJE -->
+                        <div class="tab-pane fade profile-edit pt-3" id="etaloniranje">
+                            <h5 class="card-title">Poslednje Etaloniranje</h5>
+                            {% if latest_calibration %}
+                            <div>
+                                <table class="table table-striped">
+                                    <tbody>
+                                        <tr>
+                                            <td>Datum poslednjeg etaloniranja:</strong></td>
+                                            <td>{{ latest_calibration.calibration_date|date:"d.m.Y" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Broj uverenja o etaloniranju:</strong></td>
+                                            <td>{{ latest_calibration.certificate_number }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Laboratorija za etaloniranje:</strong></td>
+                                            <td>{{ latest_calibration.calibration_laboratory }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Opseg etaloniranja:</strong></td>
+                                            <td>{{ latest_calibration.calibration_range }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Merna nesigurnost:</strong></td>
+                                            <td>{{ latest_calibration.measurement_uncertainty }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Uverenje o etaloniranju:</strong></td>
+                                            <td>
+                                                {% if latest_calibration.certificate %}
+                                                    <a href="{{ latest_calibration.certificate.url }}" target="_blank"><i class="ri ri-download-2-line"></i> PDF</a></a>
+                                                {% else %}
+                                                    No document available
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>PIE Veza sa dokumentom:</strong></td>
+                                            <td>{{ latest_calibration.pie_document_link }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Usvojeni interval etaloniranja:</strong></td>
+                                            <td>{{ latest_calibration.calibration_interval }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Datum ponovnog etaloniranja:</strong></td>
+                                            <td>{{ latest_calibration.next_calibration_date|date:"d.m.Y" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Poslednja izmena:</strong></td>
+                                            <td>{{ latest_calibration.last_modified|date:"d.m.Y H:i:s" }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>  
+                                <hr />
+                                    <div>
+                                        <a href="{% url 'calibration_edit' latest_calibration.pk %}" class="btn btn-primary">Ispravi etaloniranje</a>
+                                        <a href="{% url 'calibration_add' equipment.id %}" class="btn btn-primary" style="width: 33%">Dodaj etaloniranje</a>
+                                        {% comment %} <a href="{% url 'download_populated_document' %}?pk={{ equipment.id }}&doc_type=type5" class="btn btn-primary">Preuzmi program etaloniranja</a> {% endcomment %}
+                                        <form action="{% url 'calibration_delete' latest_calibration.pk %}" method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <input type="submit" value="Obriši" class="btn btn-danger" onclick="return confirm('Da li ste sigurni da želite da uklonite etaloniranje?');">
+                                        </form>
+                                    </div>
+                                    <hr />
+                            </div>
+                            <!-- Display more fields from the latest_calibration as needed -->
+                            {% else %}
+                                <p>Nema podataka o etaloniranju za ovaj karton.</p>
+                                <a href="{% url 'calibration_add' equipment.id %}" class="btn btn-primary" style="width: 33%">Dodaj etaloniranje</a>
+                            {% endif %}
+                            <h5 class="card-title">Program Etaloniranja</h5>
+                            <div >
+                            {% if latest_calibration %}
+                            <div>
+                                <table class="table table-striped">
+                                    <tbody>
+                                        <tr>
+                                            <td>Starost opreme (godina):</strong></td>
+                                            <td>{{ latest_calibration.equipment_age }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Učestalost korišćenja:</strong></td>
+                                            <td>{{ latest_calibration.frequency_of_use }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Uslovi korišćenja i čuvanja:</strong></td>
+                                            <td>{{ latest_calibration.conditions_of_use }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Tendencija podataka iz preth. etaloniranja:</strong></td>
+                                            <td>{{ latest_calibration.measurement_uncertainty_tracking }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Zahtevana tačnost merenja:</strong></td>
+                                            <td>{{ latest_calibration.required_accuracy }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Preporučeni interval etaloniranja:</strong></td>
+                                            <td>{{ latest_calibration.recommended_calibration_interval }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Izračunanti interval etaloniranja:</strong></td>
+                                            <td>{{ calculated_interval }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Produženi interval etaloniranja:</strong></td>
+                                            {% if latest_calibration.mandatory_calibration_interval %}
+                                                <td>{{ latest_calibration.mandatory_calibration_interval }}</td>
+                                            {% else %}
+                                                <td>Nema produženog intervala</td>
+                                            {% endif %}
+                                        </tr>
+                                    </tbody>
+                                </table>  
+                                <hr />   
+                                <table class="table table-bordered border-primary w-100 text-center">
+                                    <thead>
+                                        <tr>
+                                            <th>Kriterijumi</th>
+                                            <th>Faktor značaja F</th>
+                                            <th>Opis</th>
+                                            <th>Ocena</th>
+                                            <th>Ocena Kriterijuma</th>
+                                            <th>Korekcioni faktor</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Add 15 rows here with rowspan for the first two columns every 3 rows -->
+                                        <tr>
+                                            <td rowspan="3">Starost opreme</td>
+                                            <td rowspan="3">0.2</td>
+                                            <td>Do 1 godine</td>
+                                            <td>3</td>
+                                            <td rowspan="3">{{ ocena1 }}</td>
+                                            <td rowspan="15">{{ korekcioni_faktor }}</td>
+
+                                        </tr>
+                                        <tr>
+                                            <td>od 1 do 5 godina</td>
+                                            <td>2</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Preko 5 godina</td>
+                                            <td>1</td>
+                                        </tr>
+                                        <tr>
+                                            <td rowspan="3">Učestalost korišćenja</td>
+                                            <td rowspan="3">0.2</td>
+                                            <td>Nekoliko puta mesečno</td>
+                                            <td>3</td>
+                                            <td rowspan="3">{{ ocena2 }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nekoliko puta nedeljno</td>
+                                            <td>2</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Svakodnevno</td>
+                                            <td>1</td>
+                                        </tr>
+                                        <tr>
+                                            <td rowspan="3">Uslovi korišćenja i čuvanja</td>
+                                            <td rowspan="3">0.1</td>
+                                            <td>Kontrolisani lab. uslovi</td>
+                                            <td>3</td>
+                                            <td rowspan="3">{{ ocena3 }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nekontrolisani lab. uslovi</td>
+                                            <td>2</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Ispitivaja van lab.</td>
+                                            <td>1</td>
+                                        </tr>
+                                        <tr>
+                                            <td rowspan="3">Tendencija podataka iz prethodnog etaloniranja</td>
+                                            <td rowspan="3">0.3</td>
+                                            <td>Opadanje merne nesigurnosti</td>
+                                            <td>3</td>
+                                            <td rowspan="3">{{ ocena4 }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Konstantna merna nesigurnost</td>
+                                            <td>2</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Rast merne nesigurnosti</td>
+                                            <td>1</td>
+                                        </tr>
+                                        <tr>
+                                            <td rowspan="3">Zahtevana tačnost merenja</td>
+                                            <td rowspan="3">0.2</td>
+                                            <td>Nema propisanih zahteva</td>
+                                            <td>3</td>
+                                            <td rowspan="3">{{ ocena5 }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Standardni nivo tačnosti</td>
+                                            <td>2</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Visok nivo tačnosti</td>
+                                            <td>1</td>
+                                        </tr>
+                                    </tbody>
+                                </table>                                        
+                            </div>
+                            <!-- Display more fields from the latest_calibration as needed -->
+                            {% else %}
+                                <p>Nema podataka o etaloniranju za ovaj karton.</p>
+                            {% endif %}
+                                
+                                
+                            </div>
+        
+                        </div>
+
+
+            <!-- Oprema tabovi, INTERNO KONTROLISANJE -->
+                        <div class="tab-pane fade pt-3" id="interna-kontrola">        
+                            {% if latest_internal_controls %}
+                            {% for item in latest_internal_controls %}
+                            <h5 class="card-title">Interno kontrolisanje: {{ item.internal_control.name }}</h5>
+                            <div>
+                                <table class="table table-striped">
+                                    <tr>
+                                        <td>Datum poslednje IK:</strong></td>
+                                        <td>{{ item.internal_control.last_control_date|date:"d.m.Y" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Interval IK (meseci):</strong></td>
+                                        <td>{{ item.internal_control.control_interval }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Datum ponovnog IK:</strong></td>
+                                        <td>{{ item.internal_control.next_control_date|date:"d.m.Y" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zapis o IK:</strong></td>
+                                        <td>
+                                            {% if item.internal_control.control_note %}
+                                            {% if item.internal_control.control_note.url %}
+                                                <a href="{{ item.internal_control.control_note.url }}" target="_blank"><i class="ri ri-download-2-line"></i> PDF</a>
+                                            {% else %}
+                                                No document available
+                                            {% endif %}
+                                        {% else %}
+                                            No document available
+                                        {% endif %}
+                                        
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>NAPOMENA:</strong></td>
+                                        <td>{{ item.internal_control.note }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Kontrolna oprema:</strong></td>
+                                        
+                                    </tr>
+                                    <tr>
+                                        <td>Broj kartona:</strong></td>
+                                        <td>Naziv i link ka opremi:</strong></td>
+                                    </tr>
+                                    {% for device in item.controlling_devices %}
+                                    <tr>
+                                        <td>{{ device.card_number }}</strong></td>
+                                        <td><a href="{% url 'equipment_detail' device.pk %}">{{ device.name }}</td>
+                                    </tr>
+                                    {% endfor %}
+
+                                </table>    
+                                <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                                    <a href="{% url 'select_kontrolna_equipment' item.internal_control.pk %}" class="button">Odaberi kontrolnu opremu</a>
+                                </div>
+                            </div>
+
+                            <a href="{% url 'internal_control_edit' item.internal_control.pk %}" class="btn btn-primary">Ispravi IK</a>
+                            <form action="{% url 'internal_control_delete' item.internal_control.pk %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="submit" value="Obriši" class="btn btn-danger" onclick="return confirm('Da li ste sigurni da želite da internu kontrolu?');">
+                            </form>
+                            <hr />   
+                            {% endfor %}
+                            
+                            <!-- Display more fields from the latest_calibration as needed -->
+                            {% else %}
+                                <p>Nema podataka o internoj kontroli za ovaj karton.</p>
+                                <a href="{% url 'internal_control_add' equipment.id %}" class="btn btn-primary" style="width: 33%">Dodaj internu kontrolu</a>
+                            {% endif %}
+
+
+                        </div>
+
+            <!-- Oprema tabovi, POPRAVKE -->
+                        <div class="tab-pane fade pt-3" id="popravke">
+                            {% if latest_repair %}
+                            <h5 class="card-title">Poslednja popravka</h5>
+                            <div>
+                                <table class="table table-striped">
+                                    <tr>
+                                        <td>Datum konstatovanja neispravnosti:</strong></td>
+                                        <td>{{ latest_repair.malfunction_date|date:"d.m.Y" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Radnja pri kojoj je neispravnost utvrđena:</strong></td>
+                                        <td>{{ latest_repair.action_taken }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Opis neispravnosti:</strong></td>
+                                        <td>{{ latest_repair.malfunction_description }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Neispravnost otklonjena u okvir:</strong></td>
+                                        <td>{{ latest_repair.resolved_within_institute }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Napomena:</strong></td>
+                                        <td>{{ latest_repair.notes }}</td>
+                                    </tr>
+                                </table>              
+                            </div>
+                            <!-- Display more fields from the latest_calibration as needed -->
+                            {% else %}
+                                <p>Nije bilo popravki.</p>
+                                <a href="{% url 'repair_add' equipment.id %}" class="btn btn-primary" style="width: 33%">Dodaj popravku</a>
+                            {% endif %}
+                
+                            <div class="button-group">
+                                    {% if latest_repair and latest_repair.pk %}
+                                    <a href="{% url 'repair_edit' latest_repair.pk %}" class="btn btn-primary">Ispravi popravku</a>
+                                    <form action="{% url 'repair_delete' latest_repair.pk %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="submit" value="Obriši" class="btn btn-danger" onclick="return confirm('Da li ste sigurni da želite da ovu popravku?');">
+                                    </form>
+                                    {% endif %}
+                            </div>
+        
+                        </div>
+
+            <!-- Oprema tabovi, Sva etaloniranja -->
+                        <div class="tab-pane fade pt-3" id="sva-etaloniranja">                         
+                            {% if all_calibrations %}
+                            <h5 class="card-title">Spisak svih etaloniranja za ovaj karton</h5>
+                            <div>
+                                <table class="table table-striped">
+                                    {% for calibration in all_calibrations%}
+                                    <tr>
+                                        <td><a href="{% url 'calibration_detail' calibration.pk %}">{{ calibration.certificate_number }}</td>
+                                        <td>{{ calibration.calibration_date|date:"d.m.Y" }}</td>
+                                        <td>{{ calibration.next_calibration_date|date:"d.m.Y" }}</td>
+                                        <td>
+                                            {% if calibration.certificate %}
+                                            <a href="{{ calibration.certificate.url }}" target="_blank"><i class="ri ri-download-2-line"></i> PDF</a>
+                                            {% else %}
+                                                Dokument nije dostupan
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </table>              
+                            </div>
+                            {% else %}
+                                Nema etaloniranja 
+                            {% endif %}
+
+                        </div>   
+                             
+                        </div><!-- End Bordered Tabs -->
+        
+                    </div>
+                </div> 
+            </div>
+
+            <div class="col-xl-4">
+                <div class="card">
+                    <div class="card-body pt-3">
+                        <ul class="nav nav-tabs nav-tabs-bordered">  
+                            <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Povezana oprema</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content pt-2">
+                            {% if equipment.equipment_type == 'Glavna' %}
+                                {% if pomocna_equipments %}
+                                <!-- tabela pomocne -->
+                                <h5 class="card-title">Pomoćna oprema</h5>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Broj kartona</th>
+                                            <th>Naziv</th>
+                                            <th>Grupa</th>
+                
+                                            <!-- Add more columns as needed -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for pomocna in pomocna_equipments %}
+                                            <tr>
+                                                <td><a href="{% url 'equipment_detail' pomocna.pk %}">{{ pomocna.card_number }}</a></td>
+                                                <td>{{ pomocna.name }}</td>
+                                                <td>{{ pomocna.group }}</td>
+                                                <!-- <td>
+                                                    {% if calibration.certificate %}
+                                                        <a href="{{ calibration.certificate.url }}" target="_blank">{{ calibration.certificate.name }}</a>
+                                                    {% else %}
+                                                        No document available
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ calibration.next_calibration_date }}</td> -->
+                                                <!-- Add more fields as needed -->
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>  
+                                {% else %}
+                                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Nema pomoćnu opremu
+                                    </div>
+                                {% endif %}
+                                    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                                        <a href="{% url 'equipment_add' equipment.id %}" class="button">Dodaj karton pomoćne opreme</a>
+                                    </div>
+                                    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                                        <a href="{% url 'select_pomocna_equipment' equipment.id %}" class="button">Odaberi postojeći karton pomoćne opreme</a>
+                                    </div>
+                            {% else %}
+                                <h5 class="card-title">Glavna oprema</h5>
+                                {% if equipment.main_equipment.id %}
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Br. kartona</th>
+                                            <th>Naziv</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                            <tr>
+                                                <td><a href="{% url 'equipment_detail' equipment.main_equipment.id %}">{{ equipment.main_equipment }}</a></td>
+                                                <td>{{ equipment.main_equipment.name }}</td>
+                                            </tr>
+                                    </tbody>
+                                </table> 
+                                {% else %}
+                                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Oprema nema svoju glavnu opremu - U rezervi
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div> 
+
+                <div class="card"> 
+                    <div class="card shadow-lg">
+                        <div class="card-body text-center pt-4">
+                            <h5 class="card-title">QR Kod za Karton Opreme</h5>
+                    
+                            <!-- QR Kod -->
+                            <div class="d-flex justify-content-center mb-3">
+                                <img src="{% url 'equipment_qr_code' equipment.id %}" alt="QR Kod" class="border rounded p-2 shadow" width="200">
+                            </div>
+                    
+                            <!-- Dugmad za preuzimanje i štampanje -->
+                            <div class="d-flex justify-content-center gap-3">
+                                <a href="{% url 'equipment_qr_code' equipment.id %}" download="equipment_qr.png" class="btn btn-success">
+                                    <i class="bi bi-download"></i> Preuzmi QR Kod
+                                </a>
+                    
+                                <button class="btn btn-primary" onclick="printQR()">
+                                    <i class="bi bi-printer"></i> Štampaj QR Kod
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <script>
+                        function printQR() {
+                            var win = window.open('{% url 'equipment_qr_code' equipment.id %}', '_blank');
+                            win.print();
+                        }
+                    </script>
+                    
+                </div>
+
+            </div>
+        </div>
+        
+      </section>    
+{% endblock %}

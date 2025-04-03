@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %} Standardi {% endblock %}
+{% block content %}
+
+<div class="pagetitle">
+  <h1>{{ title }}</h1>
+</div>
+  <section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title">Tabela</h5>
+                <a href="{% url 'standard_create' %}" class="text-success" style="font-size: 1.05em;">
+                  <i class="bi bi-file-arrow-up"></i> Dodaj novi standard
+                </a>
+              </div>         
+              <table id="DataTable" class="display list">
+                <thead>
+                  <tr>
+                    <th>Naziv</th>
+                    <th>Predmet ispitivanja</th>                    
+                    <th>Naziv referentnog dokumenta</th>
+                    <th>Oznaka</th>
+                    <th>Godina</th>
+                    <th>Status</th>
+
+                    <th>AKCIJE</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for standard in standards %}
+                    <tr>
+                        <td>{{ standard.name }}</td>
+                        <td>{{ standard.test_subject }}</td>
+                        <td>
+                          {% if standard.document %}
+                            <a href="{{ standard.document.url }}" target="_blank">{{ standard.reference_document_name }}</a>
+                          {% else %}
+                            {{ standard.reference_document_name }}
+                          {% endif %}
+                        </td>                        
+                        <td>{{ standard.designation }}</td>
+                        <td>{{ standard.year }}</td>
+                        <td>{{ standard.status }}</td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                              <!-- Edit Button -->
+                              <a href="{% url 'standard_edit' standard.pk %}" class="text-success me-2">
+                                  <i class="ri-edit-2-line"></i>
+                              </a>
+                      
+                              <!-- Delete Form -->
+                              <form action="{% url 'standard_delete' standard.id %}" method="post" style="display:inline;">
+                                  {% csrf_token %}
+                                  <button type="submit" class="btn btn-link text-danger p-0 m-0" onclick="return confirm('Da li ste sigurni da želite da uklonite ovaj STANDARD?');">
+                                      <i class="ri-delete-bin-2-line"></i>
+                                  </button>
+                              </form>
+                          </div>
+                      </td>
+                      
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9">Nema unetih standarda</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

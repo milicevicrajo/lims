@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Detalji PT Šeme{% endblock %}
+{% block content %}
+<div class="pagetitle">
+  <h1>Prikaz Kontrolnog ispitivanja i metoda koje su rađene</h1>
+</div>
+<section class="section">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+
+                    <!-- PT Scheme Details -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">Detalji kontrolnog ispitivanja</h5>
+                        <a href="{% url 'control_testing_update' control_test.pk  %}" class="text-success" style="font-size: 1.05em;">
+                            <i class="ri-edit-2-line"></i> Izmeni
+                        </a>
+                    </div>
+
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td>Laboratorija:</td>
+                                <td>{{ control_test.laboratory }}</td>
+                            </tr>
+                            <tr>
+                                <td>Broj izveštaja:</td>
+                                <td>{{ control_test.report_number }}</td>
+                            </tr>
+                            <tr>
+                                <td>Datum završnog izveštaja:</td>
+                                <td>{{ control_test.report_date|date:"d.m.Y"  }}</td>
+                            </tr>
+                            <tr>
+                                <td>Završni izveštaj:</td>
+                                <td>
+                                    {% if control_test.document %}
+                                        <a href="{{ control_test.document.url }}" target="_blank">Preuzmi izveštaj</a>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+            <div class="pagetitle">
+                <h1>Metode unutar Kontrolnog ispitivanja</h1>
+            </div>
+
+            <!-- Methods Details -->
+            {% if methods %}
+            {% for method in methods %}
+
+            <div class="card">
+                <div class="card-body">
+            
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">
+                            Metoda: <a href="{% url 'method_detail' method.method.pk %}" target="_blank">{{ method.method }}</a>
+                        </h5>
+                        <a href="{% url 'pt_scheme_method_update' method.pk  %}?next={{ request.path }}" class="text-success" style="font-size: 1.05em;">
+                            <i class="ri-edit-2-line"></i> Izmeni
+                        </a>
+                    </div>
+
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td style="width: 300px;">Broj učesnika:</td> <!-- Fixed width -->
+                                <td>{{ method.number_of_participants }}</td>
+                            </tr>
+                            <tr>
+                                <td style="width: 300px;">Osoblje:</td> <!-- Fixed width -->
+                                <td>
+                                    <ul>
+                                        {% for staff_member in method.staff.all %}
+                                            <li>
+                                                <a href="{% url 'staff_detail' staff_member.pk  %}" style="font-size: 1.05em;">{{ staff_member }}</a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 300px;">Preuzete mere:</td> <!-- Fixed width -->
+                                <td>{{ method.measures_taken|default:"N/A" }}</td>
+                            </tr>                        
+                        </tbody>
+                    </table>             
+                </div>
+            </div>
+
+            {% endfor %}
+            {% else %}
+            <p>Nema dostupnih metoda za ovu PT šemu.</p>
+            {% endif %}
+
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Izbor pomoćne opreme{% endblock %}
+{% block content %}
+<!-- select_equipment.html -->
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            function changeEquipmentStatus(equipmentId, action) {
+                $.ajax({
+                    url: "{% url 'select_pomocna_equipment' equipment.id %}",
+                    type: 'POST',
+                    data: {
+                        'equipment_id': equipmentId,
+                        'action': action,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        location.reload();  // Reload the page to see the updated status
+                    },
+                    error: function(xhr, status, error) {
+                        alert('An error occurred: ' + error);
+                    }
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <div class="pagetitle">
+            <h1>Izaberi pomoćnu opremu za {{ equipment.name }}</h1>
+        </div>
+        <hr />
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Pomoćna oprema u laboratoriji</h5>
+                <table class="table datatable">
+                    <thead>
+                        <tr>
+                            <th>Broj kartona</th>
+                            <th>Naziv</th>
+                            <th>Odgovorna laboratorija</th>
+                            <th>Status</th>
+                            <th>Grupa</th>
+                            <th>Komanda</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for equipment in all_equipment %}
+                            <tr>
+                                <td>{{ equipment.card_number }}</td>
+                                <td>{{ equipment.name }}</td>
+                                <td>{{ equipment.responsible_laboratory }}</td>
+                                <td>{{ equipment.equipment_type }}</td>
+                                <td>{{ equipment.group }}</td>
+                                <td>
+                                    {% if equipment.main_equipment %}
+                                        <button onclick="changeEquipmentStatus({{ equipment.id }}, 'remove')" class="btn btn-danger btn-sm">Ukloni</button>
+                                    {% else %}
+                                        <button onclick="changeEquipmentStatus({{ equipment.id }}, 'add')" class="btn btn-success btn-sm">Dodaj</button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <a href="{% url 'equipment_detail' equipment.pk %}">
+            <i class="bi bi-arrow-left-square-fill"></i> Nazad na karton opreme
+        </a>
+    </body>
+</html>
+
+
+{% endblock %}

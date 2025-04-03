@@ -1,0 +1,362 @@
+<!-- method_detail.html -->
+{% extends 'base.html' %}
+
+
+<head>
+    {% block title %}Metoda: {{ method.name }}{% endblock %}
+</head>
+{% block content %}
+<div class="pagetitle">
+    <h1>Detalji metode: {{ method.name }}</h1>
+    <nav>
+        {{ breadcrumbs }}
+    </nav>
+</div><!-- End Page Title -->
+<section class="section">
+    <div class="row align-items-top">
+        <div class="col-lg-6">
+            <!-- Default Card -->
+            <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Osnovni podaci</h5>
+                    <a href="{% url 'method_update' method.pk %}" class="text-success">
+                        <i class="ri-edit-2-line"></i> Izmeni
+                    </a>
+                </div>
+
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td>Naziv metode:</td>
+                            <td>{{ method.name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Oblast ispitivanja:</td>
+                            <td>{{ method.testing_area }}</td>
+                        </tr>
+                        <tr>
+                            <td>Merne tehnike:</td>
+                            <td>{{ method.measurement_techniques }}</td>
+                        </tr>
+                        <tr>
+                            <td>Svojstvo:</td>
+                            <td>{{ method.property }}</td>
+                        </tr>
+                        <tr>
+                            <td>Predmet ispitivanja:</td>
+                            <td>{{ method.test_subjects }}</td>
+                        </tr>
+                        <tr>
+                            <td>Standard:</td>
+                            <td>
+                                <a href="{{ method.standard.document.url }}">
+                                    {{ method.standard.designation }}: {{ method.standard.name }} - {{ method.standard.year }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Tačka standarda:</td>
+                            <td>{{ method.standard_point }}</td>
+                        </tr>
+                        <tr>
+                            <td>Dodatni standardi:</td>
+                            <td>
+                                <ul>
+                                    {% for standard in method.standard_secondary.all %}
+                                        <li>
+                                            <a href="{{ standard.document.url }}">
+                                                {{ standard.designation }}: {{ standard.name }} - {{ standard.year }}
+                                            </a>
+                                        </li>
+                                    {% empty %}
+                                        <li>Nema dodatni standard</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Laboratorija:</td>
+                            <td>{{ method.laboratory }}</td>
+                        </tr>
+                        <tr>
+                            <td>Predmet i područje primene:</td>
+                            <td>{{ method.subject_and_area }}</td>
+                        </tr>
+                        <tr>
+                            <td>Uzorci:</td>
+                            <td>{{ method.samples }}</td>
+                        </tr>
+                        <tr>
+                            <td>Uslovi sredine:</td>
+                            <td>{{ method.environmental_conditions }}</td>
+                        </tr>
+                        <tr>
+                            <td>Mesto ispitivanja:</td>
+                            <td>{{ method.testing_place }}</td>
+                        </tr>
+                        <tr>
+                            <td>Status metode:</td>
+                            <td>{{ method.method_status }}</td>
+                        </tr>
+                        <tr>
+                            <td>Opis:</td>
+                            <td>{{ method.description }}</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            </div><!-- End Default Card -->
+
+            <!-- Default Card -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">Detalji Poddiscipline</h5>
+                    </div>
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td>Naziv:</td>
+                                <td>{{ method.subdiscipline.name }}</td>
+                            </tr>
+                            <tr>
+                                <td>Oblast ispitivanja:</td>
+                                <td>{{ method.subdiscipline.testing_area }}</td>
+                            </tr>   
+                            <tr>
+                                <td>Predmet ispitivanja:</td>
+                                <td>
+                                    <ul>
+                                        {% for subject in method.subdiscipline.test_subject.all %}
+                                            <li>
+                                                    {{ subject }}
+                                            </li>
+                                        {% endfor %}
+                            </tr>   
+                            <tr>
+                                <td>Specificnosti:</td>
+                                <td>{{ method.subdiscipline.description }}</td>
+                            </tr>
+                            <tr>
+                                <td>Frekfencija ucesca:</td>
+                                <td>{{ method.subdiscipline.frequency_of_participation }}</td>
+                            </tr>                              
+                        </tbody>
+                    </table>
+                </div>
+            </div><!-- End Default Card -->
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Kontrolna ispitivanja</h5>
+                    {% if control_tests %}
+                    <table id="DataTableControl" class="display compact">
+                        <thead>
+                            <tr>
+                                <th>Broj izvestaja</th>
+                                <th>Datum</th>  
+                                <th>Izveštaj</th>                   
+                                <th>Link</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for test in control_tests %}
+                            <tr>  
+                                <td>{{ test.control_test.report_number  }}</td>               
+                                <td>{{ test.control_test.report_date|date:"d.m.Y" }}</td>
+                                <td>                        
+                                    {% if test.control_test.document %}
+                                      <a href="{{ test.control_test.document.url }}" target="_blank">Izveštaj sa KI</a>
+                                    {% else %}
+                                      Nema dokument
+                                    {% endif %}
+                                </td>  
+                                <td>
+                                    <a href="{% url 'control_testing_detail' test.control_test.id %}">Kontrolno ispitivanje</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="9">Nema izvestaja</td>
+                                </tr>
+                            {% endfor %} 
+                        </tbody>
+                    </table>
+                    {% else %}
+                        Nema podataka
+                    {% endif %}
+                </div>
+            </div><!-- End Default Card -->     
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">PT aktivnosti</h5>
+                    {% if pt_activity %}
+                    <table id="DataTablePT" class="display compact">
+                        <thead>
+                            <tr>
+                                <th>Broj izvestaja</th>
+                                <th>Datum</th> 
+                                <th>Izveštaj</th>                   
+                                <th>Link</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pt in pt_activity %}
+                            <tr>  
+                                <td>{{ pt.pt_scheme.final_report_number  }}</td>                  
+                                <td>{{ pt.pt_scheme.final_report_date|date:"d.m.Y" }}</td>
+                                <td>                        
+                                    {% if pt.pt_scheme.final_report %}
+                                      <a href="{{ pt.pt_scheme.final_report.url }}" target="_blank">Završni izveštaj</a>
+                                    {% else %}
+                                      Nema dokument
+                                    {% endif %}
+                                </td> 
+                                <td> 
+                                    <a href="{% url 'pt_scheme_detail' pt.pt_scheme.id %}">PT Aktivnost</a> 
+                                </td>                               
+                            </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3">Nema izveštaja</td>
+                                </tr>
+                            {% endfor %} 
+                        </tbody>
+                    </table>
+                    {% else %}
+                        Nema podataka
+                    {% endif %}
+                </div>
+            </div><!-- End Default Card -->
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Merna nesigurnost</h5>
+                    {% if measurement_uncertainty %}
+                    <table id="DataTableMN" class="display compact">
+                        <thead>
+                            <tr>
+                                <th>Broj izveštaja</th>
+                                <th>Datum</th>                    
+                                <th>Link</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mu in measurement_uncertainty %}
+                            <tr>  
+                                <td>{{ mu.report_number  }}</td>                  
+                                <td>{{ mu.calculation_date }}</td>
+                                <td>                        
+                                    {% if mu.document %}
+                                      <a href="{{ mu.document.url }}" target="_blank">Izveštaj o MN</a>
+                                    {% else %}
+                                      Nema dokument
+                                    {% endif %}
+                                </td>                                
+                            </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3">Nema izveštaja</td>
+                                </tr>
+                            {% endfor %} 
+                        </tbody>
+                    </table>
+                    {% else %}
+                        Nema podataka
+                    {% endif %}
+                </div>
+            </div><!-- End Default Card -->     
+
+        </div>
+
+        <div class="col-lg-6">             
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">Oprema koja se koristi</h5>
+                        <a href="{% url 'select_equipment' method.pk %}" class="text-success">
+                            <i class="ri-edit-2-line"></i> Izmeni
+                        </a>
+                    </div>
+            
+                    <ul>
+                        {% for equipment in equipment_list %}
+                        <li>
+                            <a href="{% url 'equipment_detail' equipment.pk %}">
+                                {{ equipment.card_number }} - {{ equipment.name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                </div>
+            </div><!-- End Default Card -->
+            
+            
+            <!-- Default Card -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ovlašćenja</h5>
+                    {% if authorizations %}
+                    <table id="DataTableAutorizations" class="display compact">
+                        <thead>
+                          <tr>
+                            <th>Ovlašćenje</th>
+                            <th>Osoblje</th>                    
+                            <th>Datum dodele</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {% for authorization in authorizations %}
+                            <tr>  
+                                <td>{{ authorization.authorization_type  }}</td>                  
+                                <td>{{ authorization.staff }}</td>
+                                <td>{{ authorization.date|date:"d.m.Y" }}</td>
+
+                            </tr>
+                        {% endfor %} 
+                        </tbody>
+                    </table>
+                    {% else %}
+                        Nema ovlašćenja za ovu metodu
+                    {% endif %}
+                </div>
+            </div><!-- End Default Card -->
+
+            <!-- Default Card -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Obuke za ovu metodu</h5>
+                    {% if trainings %}
+                    <table id="DataTableTraining" class="display compact">
+                        <thead>
+                            <tr>
+                                <th>Naziv</th>
+                                <th>Datum izveštaja</th>                    
+                                <th>Rbz</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for training in trainings %}
+                            <tr>  
+                                <td><a href="{% url 'training_detail' training.pk %}">{{ training.training_name  }}</td>
+                                <td>{{ training.report_date|date:"d.m.Y" }}</td>
+                                <td>{{ training.r_b_z }}</td>
+
+                            </tr>
+                        {% endfor %} 
+                        </tbody>
+                    </table>
+                    {% else %}
+                        Nema obuka za ovu metodu
+                    {% endif %}
+                </div>
+            </div><!-- End Default Card -->     
+                  
+        </div>
+    </div>
+<section>
+</html>
+{% endblock %}

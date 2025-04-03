@@ -1,0 +1,219 @@
+{% load static %}
+	<!-- ======= Sidebar ======= -->
+  	<aside id="sidebar" class="sidebar">
+
+        <ul class="sidebar-nav" id="sidebar-nav">
+            
+<!-- ======= DASHBOARD ======= -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed{% if request.resolver_match.url_name == 'index' %}active{% endif %}" 
+                href="{% url 'index' %}">
+                    <i class="bi bi-grid"></i>
+                    <span>Kontrolna tabla</span>
+                </a>
+            </li>
+
+<!-- ============ OPREMA =========== -->
+
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'user_equipment_list' or request.resolver_match.url_name == 'equipment_add' or request.resolver_match.url_name == 'calibration_list' or request.resolver_match.url_name == 'equipment_list' or request.resolver_match.url_name == 'rashodovana_equipment_list' %}active{% else %}collapsed{% endif %}" 
+                    data-bs-target="#forms-nav" 
+                    data-bs-toggle="collapse" 
+                    href="#" 
+                    aria-expanded="{% if request.resolver_match.url_name == 'user_equipment_list' or request.resolver_match.url_name == 'equipment_add' or request.resolver_match.url_name == 'calibration_list' or request.resolver_match.url_name == 'equipment_list' or request.resolver_match.url_name == 'rashodovana_equipment_list' %}true{% else %}false{% endif %}">
+                    <i class="bi bi-tools"></i><span>Oprema</span><i class="bi bi-chevron-down ms-auto"></i>
+                 </a>
+                <ul id="forms-nav" class="nav-content collapse {% if request.resolver_match.url_name == 'user_equipment_list' or request.resolver_match.url_name == 'equipment_add' or request.resolver_match.url_name == 'calibration_list' or request.resolver_match.url_name == 'equipment_list' or request.resolver_match.url_name == 'rashodovana_equipment_list' %}show{% endif %}" 
+                  data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="{% url 'user_equipment_list' %}" class="{% if request.resolver_match.url_name == 'user_equipment_list' %}active{% endif %}">
+                            <i class="bi bi-circle"></i><span>Moja Laboratorija</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'calibration_list' %}" class="{% if request.resolver_match.url_name == 'calibration_list' %}active{% endif %}">
+                            <i class="bi bi-circle"></i><span>Etaloniranja</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'equipment_list' %}" class="{% if request.resolver_match.url_name == 'equipment_list' %}active{% endif %}">
+                            <i class="bi bi-circle"></i><span>Kompletan spisak</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'rashodovana_equipment_list' %}" class="{% if request.resolver_match.url_name == 'rashodovana_equipment_list' %}active{% endif %}">
+                            <i class="bi bi-circle"></i><span>Rashodovana oprema</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+<!-- ============ METODE =========== -->
+
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name in 'method_list standard_list sub_discipline_list testandarea_list' %} active {% else %} collapsed {% endif %}"
+                data-bs-target="#methods-nav"
+                data-bs-toggle="collapse"
+                href="#"
+                aria-expanded="{% if request.resolver_match.url_name in 'method_list standard_list sub_discipline_list testandarea_list' %}true{% else %}false{% endif %}">
+               <i class="bi bi-journal-text"></i><span>Metode</span><i class="bi bi-chevron-down ms-auto"></i>
+             </a>
+                <ul id="methods-nav" class="nav-content collapse {% if request.resolver_match.url_name in 'method_list standard_list sub_discipline_list testandarea_list' %}show{% endif %}" 
+                    data-bs-parent="#sidebar-nav">
+
+                    <li>
+                        <a href="{% url 'method_list' %}" class="{% if request.resolver_match.url_name == 'method_list' %}active{% endif %}">
+                            <i class="bi bi-circle"></i><span>Metode</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'standard_list' %}" class="{% if request.resolver_match.url_name == 'standard_list' %}active{% endif %}">
+                            <i class="bi bi-circle"></i><span>Standardi</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'sub_discipline_list' %}" class="{% if request.resolver_match.url_name == 'sub_discipline_list' %}active{% endif %}">
+                            <i class="bi bi-circle"></i><span>Poddiscipline</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'testandarea_list' %}" class="{% if request.resolver_match.url_name == 'testandarea_list' %}active{% endif %}">
+                            <i class="bi bi-circle"></i><span>Oblasti i predmeti ispitivanja</span>
+                        </a>
+                    </li>
+
+                </ul
+
+            </li>        
+      
+<!-- ============ OSOBLJE =========== -->
+
+        <li class="nav-item">
+            <a  class="nav-link {% if request.resolver_match.url_name in 'staff_list job_position_list training_list authorization_list authorization_type_list no_method_authorization_list' %} active {% else %} collapsed {% endif %}"
+                data-bs-target="#staff-nav" 
+                data-bs-toggle="collapse" 
+                href="#" 
+                aria-expanded="{% if request.resolver_match.url_name in 'staff_list job_position_list training_list authorization_type_list no_method_authorization_list' %}true{% else %}false{% endif %}">
+                <i class="bi-person-lines-fill"></i><span>Osoblje</span><i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+            <ul id="staff-nav" class="nav-content collapse {% if request.resolver_match.url_name in 'staff_list job_position_list training_list authorization_type_list no_method_authorization_list' %}show{% endif %}" 
+                data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{% url 'staff_list' %}" class="{% if request.resolver_match.url_name == 'staff_list' %}active{% endif %}">
+                        <i class="bi bi-circle"></i><span>Spisak osoblja</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'training_list' %}" class="{% if request.resolver_match.url_name == 'training_list' %}active{% endif %}">
+                        <i class="bi bi-circle"></i><span>Obuke</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'authorization_list' %}" class="{% if request.resolver_match.url_name == 'authorization_list' %}active{% endif %}">
+                        <i class="bi bi-circle"></i><span>Ovlašćenja za metode</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'no_method_authorization_list' %}" class="{% if request.resolver_match.url_name == 'no_method_authorization_list' %}active{% endif %}">
+                        <i class="bi bi-circle"></i><span>Ostala ovlašćenja</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'authorization_type_list' %}" class="{% if request.resolver_match.url_name == 'authorization_type_list' %}active{% endif %}">
+                        <i class="bi bi-circle"></i><span>Spisak tipova ovlašćenja</span>
+                    </a>
+                </li>               
+                <li>
+                    <a href="{% url 'job_position_list' %}" class="{% if request.resolver_match.url_name == 'job_position_list' %}active{% endif %}">
+                        <i class="bi bi-circle"></i><span>Spisak radnih mesta</span>
+                    </a>
+                </li>
+            </ul>
+        </li> 
+
+<!-- ============ KVALITET =========== -->
+
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name in 'pt_scheme_list control_testing_list measurement_uncertainties_list' %}active{% else %}collapsed{% endif %}"
+                data-bs-toggle="collapse"
+                href="#quality-nav"
+                aria-expanded="{% if request.resolver_match.url_name in 'pt_scheme_list control_testing_list measurement_uncertainties_list' %}true{% else %}false{% endif %}">
+                <i class="bi bi-shield-check"></i>
+                <span>Kvalitet</span>
+                <i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+            <ul id="quality-nav" class="nav-content collapse {% if request.resolver_match.url_name in 'pt_scheme_list control_testing_list measurement_uncertainties_list' %}show{% endif %}" data-bs-parent="#sidebar-nav">
+                <li>
+                    <a href="{% url 'pt_scheme_list' %}" class="{% if request.resolver_match.url_name == 'pt_scheme_list' %}active{% endif %}">
+                        <i class="bi bi-circle"></i><span>PT sheme</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'control_testing_list' %}" class="{% if request.resolver_match.url_name == 'control_testing_list' %}active{% endif %}">
+                        <i class="bi bi-circle"></i><span>Kontrolna ispitivanja</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'measurement_uncertainties_list' %}" class="{% if request.resolver_match.url_name == 'measurement_uncertainties_list' %}active{% endif %}">
+                        <i class="bi bi-circle"></i><span>Merna nesigurnost</span>
+                    </a>
+                </li>
+            </ul>
+
+        </li>
+
+<!-- ============ DOKUMENTACIJA =========== -->
+        <li class="nav-item">
+            <a class="nav-link collapsed{% if request.resolver_match.url_name == 'document_list' %}active{% endif %}" href="{% url 'document_list' %}">
+                <i class="bi bi-folder2-open"></i>
+                <span>Dokumentacija</span>
+            </a>
+        </li>
+
+<!-- ============ ORGANIZACIJA =========== -->
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name in 'center_list orgunit_list laboratory_list' %} active {% else %} collapsed {% endif %}"
+               data-bs-target="#organization-nav"
+               data-bs-toggle="collapse"
+               href="#"
+               aria-expanded="{% if request.resolver_match.url_name in 'center_list orgunit_list laboratory_list' %}true{% else %}false{% endif %}">
+              <i class="bi bi-diagram-3"></i><span>Organizacija</span><i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+          
+            <ul id="organization-nav" class="nav-content collapse {% if request.resolver_match.url_name in 'center_list orgunit_list laboratory_list' %}show{% endif %}"
+                data-bs-parent="#sidebar-nav">
+              
+              <li>
+                <a href="{% url 'center_list' %}" class="{% if request.resolver_match.url_name == 'center_list' %}active{% endif %}">
+                  <i class="bi bi-circle"></i><span>Centri</span>
+                </a>
+              </li>
+          
+              <li>
+                <a href="{% url 'orgunit_list' %}" class="{% if request.resolver_match.url_name == 'orgunit_list' %}active{% endif %}">
+                  <i class="bi bi-circle"></i><span>Organizacione jedinice</span>
+                </a>
+              </li>
+          
+              <li>
+                <a href="{% url 'laboratory_list' %}" class="{% if request.resolver_match.url_name == 'laboratory_list' %}active{% endif %}">
+                  <i class="bi bi-circle"></i><span>Laboratorije</span>
+                </a>
+              </li>
+          
+            </ul>
+        </li>
+
+<!-- ============ KORISNICI =========== -->
+
+        <li class="nav-item">
+        <a class="nav-link collapsed{% if request.resolver_match.url_name == 'user_list' %}active{% endif %}" href="{% url 'user_list' %}">
+            <i class="bi bi-person-gear"></i>
+            <span>Korisnici</span>
+        </a>
+        </li>
+
+    </aside><!-- End Sidebar-->
+
+        

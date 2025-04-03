@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %} Ovlašćenja {% endblock %}
+{% block content %}
+
+<div class="pagetitle">
+  <h1>{{ title }}</h1>  
+</div>
+
+<section class="section">
+  <div class="row">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title">Tabela</h5>
+              <a href="{% url 'authorization_type_create' %}" class="text-success" style="font-size: 1.05em;">
+                <i class="bi bi-bag-plus"></i> Dodaj tip ovlašćenja
+              </a>
+            </div>         
+            <table id="DataTable" class="display">
+              <thead>
+                <tr>
+                  <th>Naziv</th>
+                  <th>Opis</th>                    
+                  <th>AKCIJE</th>                    
+                </tr>
+              </thead>
+              <tbody>
+                {% for authorization_type in authorization_types %}
+                  <tr>
+                    <td>{{ authorization_type.name }}</td>
+                    <td>{{ authorization_type.description }}</td>
+                    <td style="width: 20px;">
+                      <div class="d-flex align-items-center">
+                        <!-- Link za izmenu -->
+                        <a href="{% url 'authorization_type_update' authorization_type.pk %}" class="text-success me-3">
+                            <i class="ri-edit-2-line"></i>
+                        </a>
+                
+                        <!-- Forma za brisanje -->
+                        <form action="{% url 'authorization_type_delete' authorization_type.pk %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link text-danger p-0 m-0" onclick="return confirm('Da li ste sigurni da želite da uklonite ovu OVLAŠĆENJE?');">
+                                <i class="ri-delete-bin-2-line"></i>
+                            </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                      <td colspan="7">Nema unetih standarda</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Metode{% endblock %}
+{% block content %}
+
+<div class="pagetitle">
+    <h1>{{ title }}</h1>
+</div>
+<section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title">Tabela</h5>
+                <a href="{% url 'method_create' %}" class="text-success" style="font-size: 1.05em;">
+                  <i class="bi bi-file-arrow-up"></i> Dodaj novu metodu
+                </a>
+              </div>  
+              <!-- FILTER FORM -->
+              <form id="filter-form" method="get" class="row g-3 align-items-end pb-3">
+                {% for field in filter.form %}
+                    <div class="col-6">
+                        <label for="{{ field.id_for_label }}" class="col-form-label">{{ field.label_tag }}</label>
+                        <div>
+                            {{ field|add_class:'form-control' }}
+                        </div>
+                    </div>
+                {% endfor %}
+                    <!-- Hidden inputs for preserving sorting -->
+                    <input type="hidden" name="type" value="{{ request.GET.type|default_if_none:'' }}">
+                    <input type="hidden" name="sort" value="{{ request.GET.sort|default_if_none:'' }}">
+
+            </form>
+            <script>
+              // Add an event listener to each input field to automatically submit the form when a field changes
+              document.querySelectorAll('#filter-form .form-control').forEach(function(field) {
+                  field.addEventListener('change', function() {
+                      document.getElementById('filter-form').submit();
+                  });
+              });
+            </script>
+            <hr />      
+              <table id="DataTable" class="display list">
+                <thead>
+                  <tr>
+                    <th>Predmet ispitivanja</th>
+                    <th>Vrsta ispitivanja</th>                    
+                    <th>Standard</th>
+                    <th>Godina sandarda</th>
+                    <th>Tačka sandarda</th>
+                    <th>Status standarda</th>
+                    <th>Status metode</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for method in methods %}
+                    <tr>
+                        
+                        <td>{{ method.test_subjects }}</td>
+                        <td>
+                          <a href="{% url 'method_detail' method.pk %}">{{ method.name }}</a>
+                        </td>
+                        <td>                        
+                          {% if method.standard.document %}
+                            <a href="{{ method.standard.document.url }}" target="_blank">{{ method.standard.designation }}</a>
+                          {% else %}
+                            Nema dokument
+                          {% endif %}
+                        </td>
+                        <td>{{ method.standard.year }}</td>
+                        <td>{{ method.standard_point }}</td>                     
+                        <td>{{ method.standard.status }}</td>
+                        <td>{{ method.method_status }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9">Nema formiranih metoda</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <style>
+    .filter-row {
+        display: flex;
+        align-items: center; /* Align items vertically */
+        justify-content: space-between; /* Space out the form fields and the button */
+    }
+    .filter-row p {
+        margin: 0; /* Remove default paragraph margins */
+    }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      const laboratoryField = document.querySelector('select[name="laboratory"]');
+      const orgUnitField = document.querySelector('select[name="org_unit"]');
+
+      laboratoryField.addEventListener('change', function () {
+          if (laboratoryField.value) {
+              orgUnitField.value = ''; // Clear the org_unit field
+          }
+      });
+
+      orgUnitField.addEventListener('change', function () {
+          if (orgUnitField.value) {
+              laboratoryField.value = ''; // Clear the laboratory field
+          }
+      });
+  });
+</script>
+{% endblock %}

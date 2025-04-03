@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %} Standardi {% endblock %}
+{% block content %}
+
+<div class="pagetitle">
+  <h1>{{ title }}</h1>
+</div>
+  <section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title">Tabela</h5>
+                <a href="{% url 'pt_scheme_create' %}" class="text-success" style="font-size: 1.05em;">
+                  <i class="bi bi-file-arrow-up"></i> Dodaj PT aktivnost
+                </a>
+              </div>         
+              <table id="DataTable" class="display">
+                <thead>
+                  <tr>
+                    <th>Akcije</th>
+                    <th>Laboratorija</th>
+                    <th>Organizator</th>
+                    <th>Kodni naziv</th>
+                    <th>Godina</th>
+                    <th>Završni izveštaj</th>
+                    <th>Datum</th>
+                    <th>Akcije</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for pt_scheme in pt_schemes %}
+                        <tr>
+                          <td><a href="{% url 'pt_scheme_detail' pt_scheme.id %}">Detalji</a></td>
+                          <td>{{ pt_scheme.laboratory }}</td>
+                          <td>{{ pt_scheme.organizer }}</td>
+                          <td>{{ pt_scheme.code_name }}</td>
+                          <td>{{ pt_scheme.year }}</td>
+                          <td>
+                              {% if pt_scheme.final_report %}
+                                  <a href="{{ pt_scheme.final_report.url }}">{{pt_scheme.final_report_number}}</a>
+                              {% else %}
+                                  Nema izveštaja
+                              {% endif %}
+                          </td>
+                          <td>{{ pt_scheme.final_report_date|date:"d.m.Y" }}</td>
+                          <td style="width:15px">
+                            <div class="d-flex align-items-center">
+                              <!-- Edit Button -->
+                              <a href="{% url 'pt_scheme_update' pt_scheme.id %}" class="text-success me-2">
+                                  <i class="ri-edit-2-line"></i>
+                              </a>
+                      
+                              <!-- Delete Form -->
+                              <form action="{% url 'pt_scheme_delete' pt_scheme.id %}" method="post" style="display:inline;">
+                                  {% csrf_token %}
+                                  <button type="submit" class="btn btn-link text-danger p-0 m-0" onclick="return confirm('Da li ste sigurni da želite da uklonite ovu PT-AKTIVNOST');">
+                                      <i class="ri-delete-bin-2-line"></i>
+                                  </button>
+                              </form>
+                            </div>                            
+                          </td>
+                            </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+
+  

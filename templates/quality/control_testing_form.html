@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% block title %} Kontrolna Ispitivanja {% endblock %}
+{% block content %}
+
+<div class="pagetitle">
+  <h1>{{ title }}</h1>
+</div>
+<section class="section">
+    <div class="row">
+      <div class="col-lg-6">  
+        <div class="card">
+          <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="number_of_methods" value="{{ number_of_methods }}">
+                <h2 class="card-title" style="font-size: 24px;">Kontrolno Ispitivanje - Detalji</h2>
+                {{ form.id }}  <!-- Render the hidden id field -->
+                {% for field in control_form %}
+                <div class="row mb-3">
+                    <label for="{{ field.id_for_label }}" class="col-sm-5 col-form-label">{{ field.label }}:</label>
+                    <div class="col-sm-7">
+                        {{ field|add_class:'form-control' }}
+                        {% if field.errors %}
+                        <div class="invalid-feedback" style="display: block;">
+                          {% for error in field.errors %}
+                              {{ error }}
+                          {% endfor %}
+                      </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            
+                <h2 class="card-title" style="font-size: 24px;">Metode unutar Kontrolnog Ispitivanja i odgovarajuća polja</h2>
+                {{ method_formset.management_form }}
+                <div id="method-formset">
+                    {% for form in method_formset %}
+                        <div class="method-form">
+                            {{ form.id }}
+                            {% for field in form %}
+                                {% if field.name != 'id' and field.name != 'DELETE' and field.name != 'control_test' %}
+                                <div class="row mb-3">
+                                    <label for="{{ field.id_for_label }}" class="col-sm-5 col-form-label">{{ field.label }}:</label>
+                                    <div class="col-sm-7">
+                                        {{ field|add_class:'form-control' }}
+                                        {% if field.errors %}
+                                        <div class="invalid-feedback" style="display: block;">
+                                          {% for error in field.errors %}
+                                              {{ error }}
+                                          {% endfor %}
+                                      </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                            {% endfor %}
+                            
+                            <div class="text-center">
+                                <button type="button" class="btn btn-danger delete-method">Ukloni</button>
+                            </div>
+                            <hr/>
+                        </div>
+                        
+                    {% endfor %}
+                </div>
+            
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Sačuvaj Kontrolno Ispitivanje</button>
+                </div>
+                <!-- Hidden empty form template -->
+                <div id="empty-form-ct" style="display:none;">
+                    <div class="method-form">
+                        {% for field in method_formset.empty_form %}
+                            {{ form.id }}
+                            {% if field.name != 'DELETE' and field.name != 'pt_scheme' and field.name != 'control_test' %}
+                            <div class="row mb-3">
+                                <label for="{{ field.id_for_label }}" class="col-sm-5 col-form-label">{{ field.label }}:</label>
+                                <div class="col-sm-7">
+                                    {{ field|add_class:'form-control' }}
+                                    {% if field.errors %}
+                                    <div class="invalid-feedback" style="display: block;">
+                                    {% for error in field.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                        <div class="text-center">
+                            <button type="button" class="btn btn-danger delete-method">Ukloni</button>
+                        </div>
+                        <hr/>
+                    </div>
+                </div>
+            </form>            
+            </div>
+        </div>  
+      </div>
+    </div>
+</section>
+
+{% endblock %}

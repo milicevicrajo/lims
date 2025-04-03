@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %} Osoblje {% endblock %}
+{% block content %}
+<div class="pagetitle">
+  <h1>{{ title }}</h1>
+</div>
+  <section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Tabela</h5>
+                    {% comment %} <a href="{% url 'staff_create' %}" class="text-success" style="font-size: 1.05em;">
+                    <i class="bi bi-person-plus"></i> Dodaj Osoblje
+                    </a> {% endcomment %}
+                </div>
+                <table id="DataTable" class="display">
+                    <thead>
+                        <tr>
+                            <th>Metoda</th>
+                            <th>Standard</th>
+                            <th>Oblast ispitivanja</th>
+                            <th>Merna tehnika</th>
+                            <th>Svojstvo</th>
+                            <th>Predmet ispitivanja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for method in methods %}
+                        <tr>
+                            <td>
+                              <a href="{% url 'method_detail' method.pk %}">{{ method.name }}</a>
+                            </td>
+                            <td>{{ method.standard }}</td>
+                            <td>{{ method.testing_area }}</td>
+                            <td>{{ method.measurement_techniques }}</td>
+                            <td>{{ method.property }}</td>
+                            <td>{{ method.test_subjects }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6">Nema dostupnih metoda za ovu poddisciplinu.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

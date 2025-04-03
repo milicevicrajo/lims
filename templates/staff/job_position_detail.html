@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Detalji PT Šeme{% endblock %}
+{% block content %}
+<div class="pagetitle">
+  <h1>Prikaz radnog mesta sa opisom radnog procesa</h1>
+</div>
+<section class="section">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+
+                    <!-- PT Scheme Details -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">Detalji</h5>
+                        <a href="{% url 'job_position_update' job_position.pk  %}" class="text-success" style="font-size: 1.05em;">
+                            <i class="ri-edit-2-line"></i> Izmeni
+                        </a>
+                    </div>
+
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td>Naziv radnog mesta:</td>
+                                <td>{{ job_position.title }}</td>
+                            </tr>
+                            <tr>
+                                <td>Tip radnog mesta:</td>
+                                <td>{{ job_position.get_job_type_display }}</td>
+                            </tr>
+                            <tr>
+                                <td>Broj radnog mesta:</td>
+                                <td>{{ job_position.code }}</td>
+                            </tr>
+                            <tr>
+                                <td>Podkategorija:</td>
+                                <td>{{ job_position.subcategory|default:"Nema podkategorije" }}</td>
+                            </tr>
+                            <tr>
+                                <td>Opis radnog procesa po tačkama:</td>
+                                <td>
+                                    <ul>
+                                        {% for point in job_position.get_process_description_as_list %}
+                                            <li>{{ point }}</li>
+                                        {% empty %}
+                                            <li>Nema opisa radnog procesa.</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    
+                        
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

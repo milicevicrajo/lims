@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block title %}Obuka{% endblock %}
+{% block content %}
+
+<div class="pagetitle">
+    <h1>Obuka: {{ training.training_name }}</h1>
+</div><!-- End Page Title -->
+
+<section class="section">
+    <div class="row align-items-top">
+        <div class="col-lg-6">
+
+            <!-- Default Card -->
+            <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Detalji obuke</h5>
+                    <a href="{% url 'training_update' training.pk %}" class="text-success">
+                        <i class="ri-edit-2-line"></i> Izmeni
+                    </a>
+                </div>
+
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td>Laboratorija:</td>
+                            <td>{{ training.laboratory }}</td>
+                        </tr>
+                        <tr>
+                            <td>Vrsta obuke:</td>
+                            <td>{{ training.get_training_type_display }}</td>
+                        </tr>
+                        <tr>
+                            <td>Naziv obuke:</td>
+                            <td>
+                                <ul>
+                                    {% for point in training.get_training_name_as_list %}
+                                        <li>{{ point }}</li>
+                                    {% empty %}
+                                        <li>Nema naziv</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mesto održavanja obuke:</td>
+                            <td>{{ training.location }}</td>
+                        </tr>
+                        <tr>
+                            <td>Datum početka obuke:</td>
+                            <td>{{ training.start_date|date:"d.m.Y" }}</td>
+                        </tr>
+                        <tr>
+                            <td>Datum završetka obuke:</td>
+                            <td>{{ training.end_date|date:"d.m.Y" }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>Nosilac obuke - Zaposleni:</td>
+                            <td>
+                                <ul>
+                                    {% for instructor in training.instructors.all %}
+                                        <li>
+                                            <a href="{% url 'staff_detail' instructor.pk %}">
+                                                {{ instructor.first_name }} {{ instructor.last_name }}
+                                            </a>
+                                        </li>
+                                    {% empty %}
+                                        <li>Nema nosilaca obuke</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Nosilac obuke - Ostali:</td>
+                            <td>{{ training.instructors_other|default:"Nema podataka" }}</td>
+                        </tr>
+                        <tr>
+                            <td>Materijal za obuku:</td>
+                            <td>
+                                <ul>
+                                    {% for point in training.get_training_material_as_list %}
+                                        <li>{{ point }}</li>
+                                    {% empty %}
+                                        <li>Nema opisa radnog procesa.</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            
+                        </tr>
+                        <tr>
+                            <td>Zaposleni/Učesnici:</td>
+                            <td>
+                                <ul>
+                                    {% for staff in training.staff.all %}
+                                        <li>
+                                            <a href="{% url 'staff_detail' staff.pk %}">
+                                                {{ staff.first_name }} {{ staff.last_name }}
+                                            </a>
+                                        </li>
+                                    {% empty %}
+                                        <li>Nema učesnika?</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Metode:</td>
+                            <td>
+                                <ul>
+                                    {% for method in training.methods.all %}
+                                        <li>
+                                            <a href="{% url 'method_detail' method.pk %}">
+                                                {{ method.name }}
+                                            </a>
+                                        </li>
+                                    {% empty %}
+                                        <li>Nema metoda?</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Naziv dokumenta koji potvrđuje uspešnost obuke:</td>
+                            <td>{{ training.document|default:"Nema dokumenta" }}</td>
+                        </tr>
+                        <tr>
+                            <td>Vrednovanje efektivnosti obuke:</td>
+                            <td>{{ training.training_effectiveness|default:"Nema vrednovanja" }}</td>
+                        </tr>
+                        <tr>
+                            <td>Izveštaj:</td>
+                            <td>
+                                {% if training.report %}
+                                    <a href="{{ training.report.url }}" target="_blank">LINK</a>
+                                {% else %}
+                                    Nema izveštaja
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>R.b.z.:</td>
+                            <td>{{ training.r_b_z|default:"Nema podataka" }}</td>
+                        </tr>
+                        <tr>
+                            <td>Datum izveštaja:</td>
+                            <td>{{ training.report_date|date:"d.m.Y" }}</td>
+                        </tr>
+                        <tr>
+                            <td>Izveštaj podneo:</td>
+                            <td>
+                                {% if training.report_submitted %}
+                                    <a href="{% url 'staff_detail' training.report_submitted.pk %}">
+                                        {{ training.report_submitted.first_name }} {{ training.report_submitted.last_name }}
+                                    </a>
+                                {% else %}
+                                    Nema podataka o izveštaju
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+            </div>
+            </div><!-- End Default Card -->
+
+        </div>
+        <div class="col-lg-6">
+
+            <!-- Default Card -->
+            {% comment %} <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Testovi osoblja</h5>
+                <ul>
+                    <ul>
+
+                            <li>
+
+
+                            </li>
+
+                    </ul>
+                </ul>
+            </div> {% endcomment %}
+            </div><!-- End Default Card -->
+
+           
+            
+        </div>
+    </div>
+<section>
+{% endblock %}

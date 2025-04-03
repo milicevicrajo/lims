@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %} PT šema {% endblock %}
+{% block content %}
+{% load widget_tweaks %}
+<div class="pagetitle">
+  <h1>{{ title }}</h1>
+</div>
+<section class="section">
+    <div class="row">
+      <div class="col-lg-6">  
+        <div class="card">
+          <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <!-- Hidden field to carry number_of_methods into the POST request -->
+                <input type="hidden" name="number_of_methods" value="{{ number_of_methods }}">
+                <h2 class="card-title" style="font-size: 24px;">PT Aktvnost - Detalji</h2>
+                {% for field in scheme_form %}
+                <div class="row mb-3">
+                    <label for="{{ field.id_for_label }}" class="col-sm-5 col-form-label">{{ field.label }}:</label>
+                    <div class="col-sm-7">
+                        {{ field|add_class:'form-control' }}
+                        {% if field.errors %}
+                        <div class="invalid-feedback" style="display: block;">
+                          {% for error in field.errors %}
+                              {{ error }}
+                          {% endfor %}
+                      </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            
+                <h2 class="card-title" style="font-size: 24px;">Metode unutar PT Aktivnosti i odgovarajuća polja </h2>
+                {{ method_formset.management_form }}
+                <div id="method-formset">
+                    {% for form in method_formset %}
+                        <!-- Add a dynamic title for each method -->
+                        <h3 class="card-title">Metoda {{ forloop.counter }}</h3> <!-- Add dynamic titles here -->
+                        <div class="method-form">
+                            {% for field in form %}
+                                {% if field.name != 'id' and field.name != 'DELETE' and field.name != 'pt_scheme' %}
+                                <div class="row mb-3">
+                                    <label for="{{ field.id_for_label }}" class="col-sm-5 col-form-label">{{ field.label }}:</label>
+                                    <div class="col-sm-7">
+                                        {{ field|add_class:'form-control' }}
+                                        {% if field.errors %}
+                                        <div class="invalid-feedback" style="display: block;">
+                                          {% for error in field.errors %}
+                                              {{ error }}
+                                          {% endfor %}
+                                      </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                            {% endfor %}
+                            <hr/>
+                        </div>
+                        
+                    {% endfor %}
+                </div>
+            
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Sačuvaj PT šemu</button>
+                </div>
+                <!-- Hidden empty form template -->
+                <div id="empty-form-pt" style="display:none;">
+                    <div class="method-form">
+                        {% for field in method_formset.empty_form %}
+                            {% if field.name != 'id' and field.name != 'DELETE' and field.name != 'pt_scheme' %}
+                            <div class="row mb-3">
+                                <label for="{{ field.id_for_label }}" class="col-sm-5 col-form-label">{{ field.label }}:</label>
+                                <div class="col-sm-7">
+                                    {{ field|add_class:'form-control' }}
+                                    {% if field.errors %}
+                                    <div class="invalid-feedback" style="display: block;">
+                                    {% for error in field.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                        <hr/>
+                    </div>
+                </div>
+            </form>            
+            </div>
+        </div>  
+      </div>
+    </div>
+</section>
+
+{% endblock %}

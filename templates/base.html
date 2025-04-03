@@ -1,0 +1,465 @@
+{% load static %}
+<!DOCTYPE HTML>
+<html>
+	<head>
+    <title>{% block title %} Pocetna {% endblock %}</title>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'ims/img/favicon-32x32.png' %}" type="image/x-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="{% static 'ims/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'ims/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'ims/vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+    <link href="{% static 'ims/vendor/quill/quill.snow.css' %}" rel="stylesheet">
+    <link href="{% static 'ims/vendor/quill/quill.bubble.css' %}" rel="stylesheet">
+    <link href="{% static 'ims/vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+    <link href="{% static 'ims/vendor/simple-datatables/style.css' %}" rel="stylesheet">
+
+    <!-- Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
+
+    <!-- DataTables CSS -->
+    {% comment %} <link href="https://cdn.datatables.net/v/dt/dt-2.0.8/datatables.min.css" rel="stylesheet"> {% endcomment %}
+    <link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet">
+    
+    <!-- Template Main CSS File -->
+    <link href="{% static 'ims/css/style.css' %}" rel="stylesheet">
+  </head>
+
+
+	<body>
+	  <!-- ======= Header ======= -->
+	  <header id="header" class="header fixed-top d-flex align-items-center">
+
+		<div class="d-flex align-items-center justify-content-between">
+		  <a href="{%url 'index' %}" class="logo d-flex align-items-center">
+			<img src="{% static 'ims/img/logo.jpg' %}"  alt="">
+			<span class="d-none d-lg-block">IMS LIMS</span>
+		  </a>
+		  <i class="bi bi-list toggle-sidebar-btn"></i>
+		</div>
+		<!-- End Logo -->
+	
+		{% comment %} <div class="search-bar">
+		  <form class="search-form d-flex align-items-center" method="POST" action="#">
+			<input type="text" name="query" placeholder="Search" title="Enter search keyword">
+			<button type="submit" title="Search"><i class="bi bi-search"></i></button>
+		  </form>
+		</div> {% endcomment %}
+		<!-- End Search Bar -->
+	
+		<nav class="header-nav ms-auto">
+      <ul class="d-flex align-items-center">
+    
+        <li class="nav-item d-block d-lg-none">
+          <a class="nav-link nav-icon search-bar-toggle" href="#">
+            <i class="bi bi-search"></i>
+          </a>
+        </li><!-- End Search Icon-->
+    
+        {% if request.user.is_authenticated %}
+        <li class="nav-item dropdown pe-3">
+          <a class="nav-link nav-profile d-flex align-items-center pe-0 dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-person"></i>
+            <span>{{ request.user.first_name }} {{ request.user.last_name }}</span>
+          </a><!-- End Profile Icon -->
+    
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+            <li class="dropdown-header">
+              <h6>{{ request.user.first_name }} {{ request.user.last_name }}</h6>
+              <span>{{ request.user.role }}</span>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+    
+            <li>
+              <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item d-flex align-items-center">
+                  <i class="bi bi-box-arrow-right"></i>
+                  <span>Sign Out</span>
+                </button>
+              </form>
+            </li>
+          </ul><!-- End Profile Dropdown Items -->
+        </li><!-- End Profile Nav -->
+        {% else %}
+        <li class="nav-item">
+          <a href="{% url 'login_route' %}" class="button small">
+            <i class="fas fa-sign-in-alt"></i> <span class="label">Login</span>
+          </a>
+        </li>
+        {% endif %}
+    
+      </ul>
+    </nav><!-- End Icons Navigation -->
+    
+	  </header><!-- End Header -->
+
+	  {% include "includes/sidebar.html" %}
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+				<!-- Main -->
+				<div id="main">
+					<div class="inner">
+
+							{% block content %}
+							{% endblock %}
+							
+					</div>
+				</div>
+			</div>
+
+<!-- ======= Footer ======= -->
+<footer id="footer" class="footer">
+</footer><!-- End Footer -->
+<a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+			
+
+<!------- Scripts -------->
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+<!-- Moment.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+<!-- Date sorting plugin -->
+<script src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/datetime-moment.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="{% static 'ims/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+<!-- Vendor JS Files -->
+<script src="{% static 'ims/vendor/apexcharts/apexcharts.min.js' %}"></script>
+<script src="{% static 'ims/vendor/chart.js/chart.umd.js' %}"></script>
+<script src="{% static 'ims/vendor/echarts/echarts.min.js' %}"></script>
+<script src="{% static 'ims/vendor/quill/quill.min.js' %}"></script>
+<script src="{% static 'ims/vendor/simple-datatables/simple-datatables.js' %}"></script>
+<script src="{% static 'ims/vendor/tinymce/tinymce.min.js' %}"></script>
+<script src="{% static 'ims/vendor/php-email-form/validate.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/umd/simple-datatables.js"></script>
+
+
+<!-- Template Main JS File -->
+<script src="{% static 'ims/js/main.js' %}"></script>
+
+<!-- Custom Scripts -->
+<script>
+    // Function to change equipment status
+    function changeStatus(equipmentId) {
+        $.ajax({
+            url: `/equipment/${equipmentId}/change_status/`,
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(data) {
+                alert(data.message);
+                location.reload();  // Reload the page to see the updated status
+            },
+            error: function(xhr, status, error) {
+                alert('An error occurred: ' + error);
+            }
+        });
+    }
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+    let isPageHidden = false;
+
+    document.addEventListener('visibilitychange', function() {
+        isPageHidden = document.hidden;
+    });
+
+    window.addEventListener('beforeunload', function(event) {
+        if (isPageHidden) {
+            const data = new FormData();
+            data.append('csrfmiddlewaretoken', csrftoken);
+            navigator.sendBeacon("{% url 'ajax_logout' %}", data);
+        }
+    });
+
+    // Initialize DataTables
+    document.addEventListener("DOMContentLoaded", function () {
+        const tables = document.querySelectorAll(".datatable");
+        tables.forEach(table => {
+            new simpleDatatables.DataTable(table);
+        });
+
+        // Initialize Select2
+        $('#id_main_equipment').select2({
+            placeholder: "Izaberi glavnu opremu",
+            allowClear: true
+        });
+        $('.select2-method').each(function() {
+            $(this).select2({
+                placeholder: $(this).prop('multiple') ? "Izaberite opcije" : "Izaberite jednu od opcija",
+                allowClear: true
+            });
+        });
+
+
+
+
+        // Auto-submit filter form on input change
+        var form = document.getElementById('filter-form');
+        var inputs = form.querySelectorAll('input, select');
+        inputs.forEach(function(input) {
+            if (input.type !== 'hidden') { // Exclude hidden inputs
+                input.addEventListener('change', function() {
+                    form.submit();
+                });
+            }
+        });
+
+        // Add click event to rows for redirection
+        const rows = document.querySelectorAll('tbody tr[data-href]');
+        rows.forEach(row => {
+            row.addEventListener('click', function() {
+                window.location.href = this.dataset.href;
+            });
+        });
+
+
+
+    });
+
+    // DataTable initialization with common language settings
+    $(document).ready(function() {
+        var languageSettings = {
+            "emptyTable": "Nema dostupnih podataka",
+            "sProcessing": "Procesiranje...",
+            "sLengthMenu": "Prikaži _MENU_ elemenata",
+            "sZeroRecords": "Ništa nije pronađeno",
+            "sInfo": "Prikaz _START_ do _END_ od _TOTAL_ elemenata",
+            "sInfoEmpty": "Prikaz 0 do 0 od 0 elemenata",
+            "sInfoFiltered": "(filtrirano od ukupno _MAX_ elemenata)",
+            "sInfoPostFix": "",
+            "sSearch": "Pretraga:",
+            "sUrl": "",
+            "oPaginate": {
+                "sFirst": "Prva",
+                "sPrevious": "Prethodna",
+                "sNext": "Sledeća",
+                "sLast": "Poslednja"
+            }
+        };
+
+         // Include moment.js format for DataTables sorting
+         $.fn.dataTable.moment('DD.MM.YYYY'); // Adjust the format to match your date format
+
+        /*  // Inicijalizacija DataTables
+          $('#DataTable').DataTable({
+            "language": languageSettings,
+            "scrollX": true,
+            "autoWidth": false,
+            "columnDefs": [
+                { "width": "80px", "targets": 0 },
+
+            ]*/
+
+          function initializeDataTable(selector, options) {
+          if ($.fn.dataTable.isDataTable(selector)) {
+              $(selector).DataTable().destroy();
+          }
+          $(selector).DataTable($.extend({
+              "language": languageSettings
+          }, options));
+      }
+
+
+
+        // Inicijalizuje vise tabela od jednom
+        initializeDataTable('#DataTable', {
+          "pageLength": 50  // Prikaz 100 elemenata po strani
+        });
+        initializeDataTable('#DataTableArea');
+        initializeDataTable('#DataTableSubject');
+        // Initialize DataTables with horizontal scrolling for "display compact" tables
+        initializeDataTable('table.display.compact', {
+          "scrollX": true,  // Enable horizontal scrolling
+          "autoWidth": false,  // Disable automatic column width calculation
+        });
+        initializeDataTable('table.display.list', {
+          "scrollX": true,  // Enable horizontal scrolling
+          "autoWidth": false,  // Disable automatic column width calculation
+          "pageLength": 100  // Prikaz 100 elemenata po strani
+        });
+        
+        // Inicijalizuj samo jednu tabelu sa specifičnim podešavanjima
+        $('#DataTableJob').DataTable({
+          "language": languageSettings,
+          "order": [[1, 'asc']],  // Sortiraj po drugoj koloni (indeks 1)
+          "pageLength": 100  // Prikaz 100 elemenata po strani
+        });
+
+    });
+</script>
+
+</script>
+
+<!--==========================================================-->
+<!-------                PT SCHEME METHOD                 ------>
+<!--==========================================================-->
+<script type="text/javascript">
+  
+$(document).ready(function() {
+  function initializeSelect2() {
+    // Initialize Select2 on all existing elements with class 'select2-method'
+      $('.select2-method').select2({
+        width: '100%' // Adjust the width to fit your layout
+    });
+  }
+
+  function removeDuplicateSelect2Containers() {
+    // Find all select elements with the select2-method class
+    $('select.select2-method').each(function() {
+        // Get all related select2 containers
+        var select2Containers = $(this).siblings('span.select2-container');
+
+        // If more than one container exists, remove the duplicates
+        if (select2Containers.length > 1) {
+            select2Containers.not(':first').remove();
+        }
+    });
+  }
+
+  function updateElementIndex(element, prefix, index) {
+    var idRegex = new RegExp(prefix + '-__prefix__-', 'g');
+    var replacement = prefix + '-' + index + '-';
+    if (element.attr("for")) element.attr("for", element.attr("for").replace(idRegex, replacement));
+    if (element.attr("id")) element.attr("id", element.attr("id").replace(idRegex, replacement));
+    if (element.attr("name")) element.attr("name", element.attr("name").replace(idRegex, replacement));
+  }
+
+  // Call this function to remove duplicates
+  removeDuplicateSelect2Containers();
+
+  // Initialize Select2
+  initializeSelect2();
+
+  // Add event listener for adding new forms dynamically
+  $('#add-method').click(function() {
+    
+     // Get the current total number of forms
+      var form_idx = $('#id_form-TOTAL_FORMS').val();
+
+      // Clone the empty form template and replace prefix with the new index
+      var newForm = $('#empty-form-pt').html().replace(/__prefix__/g, form_idx);
+
+      // Append the new form to the formset container
+      $('#method-formset').append(newForm); 
+      form_idx++; // Increment the form index
+
+      // Update the management form total count
+      $('#id_form-TOTAL_FORMS').val(form_idx); 
+
+      // Initialize Select2 only on newly added elements
+      initializeSelect2();
+        
+      // Remove any duplicates that might have been added
+      removeDuplicateSelect2Containers();
+  });
+
+  // Handle the removal of dynamically added forms
+  $(document).on('click', '.delete-method', function() {
+      $(this).closest('.method-form').remove(); // Remove the closest method form
+  });
+    // Add event listener for adding new forms dynamically
+    $('#add-method-ct').click(function() {
+    
+      // Get the current total number of forms
+       var form_idx = $('#id_form-TOTAL_FORMS').val();
+ 
+       // Clone the empty form template and replace prefix with the new index
+       var newForm = $('#empty-form-ct').html().replace(/__prefix__/g, form_idx);
+ 
+       // Append the new form to the formset container
+       $('#method-formset').append(newForm); 
+       form_idx++; // Increment the form index
+ 
+       // Update the management form total count
+       $('#id_form-TOTAL_FORMS').val(form_idx); 
+ 
+       // Initialize Select2 only on newly added elements
+       initializeSelect2();
+         
+       // Remove any duplicates that might have been added
+       removeDuplicateSelect2Containers();
+   });
+});
+
+
+</script>
+
+
+  
+  
+  
+
+<script type="text/javascript" src="https://viewer.diagrams.net/js/viewer-static.min.js"></script>
+
+
+<style>
+  /* Compact styling for DataTables with class "display compact" */
+  table.display.compact th, 
+  table.display.compact td {
+      padding: 4px 8px;  /* Adjust padding */
+      font-size: 14px;   /* Adjust font size */
+  }
+  
+  /* Ensure horizontal scrolling is handled */
+  .dataTables_wrapper {
+      overflow-x: auto;  /* Enable horizontal scrolling for wrappers */
+  }
+  /* Target DataTables cells */
+  table.dataTable tbody td {
+      text-align: left;       /* Align text to the left */
+      vertical-align: top;    /* Align text to the top */
+
+  }
+
+  /* Compact styling for DataTables with class "display detail" */
+  table.display.list th, 
+  table.display.list td {
+      padding: 4px 8px;  /* Adjust padding */
+      font-size: 14px;   /* Adjust font size */
+  }
+  
+
+  </style>
+	</body>
+</html>

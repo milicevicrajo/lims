@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Etaloniranje{% endblock %}
+{% block content %}
+<h2>Karton etaloniranja</h2>
+    <!-- Elements -->
+    <div class="row gtr-200">
+        <div class="col-8 col-12-medium">
+            <div class="card">
+            <table class="table table-striped">
+                <tr>
+                    <td><strong>Broj uverenja:</strong></td>
+                    <td>{{ object.certificate_number }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Datum poslednjeg etaloniranja:</strong></td>
+                    <td>{{ object.calibration_date }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Naziv opreme:</strong></td>
+                    <td>{{ object.equipment.name }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Laboratorija za etaloniranje:</strong></td>
+                    <td>{{ object.calibration_laboratory }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Opseg etaloniranja:</strong></td>
+                    <td>{{ object.calibration_range }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Merna nesigurnost:</strong></td>
+                    <td>{{ object.measurement_uncertainty }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Uverenje o etaloniranju:</strong></td>
+                    <td>                       
+                        {% if object.certificate %}
+                        <a href="{{ calibration.certificate.url }}" target="_blank">{{ object.certificate.name }}</a>
+                        {% else %}
+                            No document available
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Interval etaloniranja:</strong></td>
+                    <td>{{ object.calibration_interval }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Datim sledećeg etaloniranja:</strong></td>
+                    <td>{{ object.next_calibration_date }}</td>
+                </tr>
+                <tr>
+            </table>
+            <div>
+                <div class="button-group">
+                    <a href="{% url 'calibration_edit' calibration.pk %}" class="btn btn-primary">Ispravi etaloniranje</a>
+                    <form action="{% url 'calibration_delete' calibration.pk %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="submit" value="Obriši" class="btn btn-danger" onclick="return confirm('Da li ste sigurni da želite da uklonite ovo etaloniranje?');">
+                    </form>
+                </div>
+                <hr />
+            </div>
+        </div>
+    </div>
+{% endblock %}

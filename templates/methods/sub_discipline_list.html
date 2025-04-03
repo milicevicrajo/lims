@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %} Spisak poddisciplina {% endblock %}
+{% block content %}
+
+<div class="pagetitle">
+  <h1>{{ title }}</h1>
+</div>
+  <!-- SORTING TABLE -->
+  <section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title">Tabela</h5>
+                <a href="{% url 'sub_discipline_create' %}" class="text-success" style="font-size: 1.05em;">
+                  <i class="bi bi-plus-circle"></i> Formiraj novu poddisciplinu
+                </a>
+              </div>         
+              <table id="DataTable" class="display list">
+                <thead>
+                  <tr>
+                    <th>Naziv</th>
+                    <th>Oblast ispitivanja</th>                    
+                    <th>Predmeti ispitivanja</th>
+                    <th>Specifičnosti</th>
+                    <th>Frekfencija učešća</th>
+                    <th>Organizaciona jedinica</th>
+                    <th>AKCIJE</th>
+
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for sub_discipline in sub_disciplines %}
+                    <tr>
+                        <td>
+                          <a  href="{% url 'sub_discipline_detail' sub_discipline.id %}">
+                            {{ sub_discipline.name }}
+                          </a>
+                        </td>
+                        <td>{{ sub_discipline.testing_area }}</td>
+                        <td>
+                          <ul>
+                              {% for subject in sub_discipline.test_subject.all %}
+                                  <li>
+                                          {{ subject }}
+                                  </li>
+                              {% empty %}
+                                  <li>Nije dodeljeno</li>
+                              {% endfor %}
+                          </ul>
+                        </td>
+                    
+                        <td>{{ sub_discipline.description }}</td>
+                        <td>{{ sub_discipline.frequency_of_participation }}</td>
+                        <td>{{ sub_discipline.laboratory.org_unit }}</td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                              <!-- Edit Button -->
+                              <a href="{% url 'sub_discipline_update' sub_discipline.pk %}" class="text-success me-2">
+                                  <i class="ri-edit-2-line"></i>
+                              </a>
+                      
+                              <!-- Delete Form -->
+                              <form action="{% url 'sub_discipline_delete' sub_discipline.id %}" method="post" style="display:inline;">
+                                  {% csrf_token %}
+                                  <button type="submit" class="btn btn-link text-danger p-0 m-0" onclick="return confirm('Da li ste sigurni da želite da uklonite ovu PODDISCIPLINU?');">
+                                      <i class="ri-delete-bin-2-line"></i>
+                                  </button>
+                              </form>
+                          </div>
+                      </td>
+                      
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9">Nema formiranih poddisciplina</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %} Obuke {% endblock %}
+{% block content %}
+
+<div class="pagetitle">
+  <h1>{{ title }}</h1>
+</div>
+
+  <section class="section">
+    <div class="row">
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title">Tabela</h5>
+                <a href="{% url 'training_create' %}" class="text-success" style="font-size: 1.05em;">
+                  <i class="bi bi-journal-plus" ></i> Dodaj novu obuku
+                </a>
+              </div>         
+              <table id="DataTableStaff" class="display list">
+                <thead>
+                    <tr>
+                        <th>Naziv obuke</th>
+                        <th>Vrsta obuke</th>           
+                        <th>Datum izveštaja</th>
+                        <th>Učesnici</th>
+                        <th>Metode</th>
+                        <th>AKCIJE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  {% for training in trainings %}
+                    <tr>
+                        <td><a href="{% url 'training_detail' training.pk %}">
+                          <ul>
+                            {% for point in training.get_training_name_as_list %}
+                                <li>{{ point }}</li>
+                            {% empty %}
+                                <li>Nema naziv</li>
+                            {% endfor %}
+                        </ul>
+                        </td>
+                        <td>{{ training.training_type }}</td>                          
+                        <td>{{ training.report_date|date:"d.m.Y"}}</td>   
+                        <td>
+                          <ul>               
+                            {% for staff in training.staff.all %}
+                              <li>{{ staff.first_name }} {{ staff.last_name }}</li>
+                            {% empty %}
+                              <li>Nema osoblja</li>
+                            {% endfor %}
+                          </ul>
+                        </td>
+                        <td>
+                          <ul>
+                            {% for method in training.methods.all %}
+                              <li>{{ method.standard.designation }} : {{ method.name }}: {{ method.standard.year }}</li>
+                            {% empty %}
+                              <li>Nema metode</li>
+                            {% endfor %}
+                          </ul>
+                        </td>
+                        <td style="width: 20px;">
+                          <div class="d-flex align-items-center">
+                            <!-- Link za izmenu -->
+                            <a href="{% url 'training_update' training.pk %}" class="text-success me-3">
+                                <i class="ri-edit-2-line"></i>
+                            </a>
+                    
+                            <!-- Forma za brisanje -->
+                            <form action="{% url 'training_delete' training.pk %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link text-danger p-0 m-0" onclick="return confirm('Da li ste sigurni da želite da uklonite ovau OBUKU?');">
+                                    <i class="ri-delete-bin-2-line"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8">Nema unetih obuka</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

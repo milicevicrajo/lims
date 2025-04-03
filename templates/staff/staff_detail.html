@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+{% block title %}Osoblje{% endblock %}
+{% block content %}
+
+<div class="pagetitle">
+    <h1>Karton osoblja: {{ staff.first_name }} {{ staff.last_name }}</h1>
+</div><!-- End Page Title -->
+
+<section class="section">
+    <div class="row align-items-top">
+        <div class="col-lg-6">
+
+            <!-- Default Card -->
+            <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Osnovni podaci</h5>
+                    <a href="{% url 'staff_update' staff.pk %}" class="text-success">
+                        <i class="ri-edit-2-line"></i> Edit
+                    </a>
+                </div>
+
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td>Ime:</td>
+                            <td>{{ staff.first_name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Prezime:</td>
+                            <td>{{ staff.last_name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Datum rođenja:</td>
+                            <td>
+                                {% if staff.date_of_birth %}
+                                    {{ staff.date_of_birth|date:"d.m.Y" }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mesto:</td>
+                            <td>{{ staff.place }}</td>
+                        </tr>
+                        <tr>
+                            <td>JMBG:</td>
+                            <td>{{ staff.jmbg }}</td>
+                        </tr>
+                        <tr>
+                            <td>Stepen obrazovanja:</td>
+                            <td>{{ staff.education_level }}</td>
+                        </tr>
+                        <tr>
+                            <td>Škola:</td>
+                            <td>{{ staff.school }}</td>
+                        </tr>
+                        <tr>
+                            <td>Akademska titula:</td>
+                            <td>{{ staff.academic_title }}</td>
+                        </tr>
+                        <tr>
+                            <td>Naučno zvanje:</td>
+                            <td>{{ staff.scientific_title }}</td>
+                        </tr>
+                        <tr>
+                            <td>Organizaciona celina:</td>
+                            <td>{{ staff.laboratory }}</td>
+                        </tr>
+                        <tr>
+                            <td>Početak rada u struci:</td>
+                            <td>
+                                {% if staff.start_date_in_profession %}
+                                    {{ staff.start_date_in_profession|date:"d.m.Y" }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Početak rada u IMS:</td>
+                            <td>
+                                {% if staff.start_date_in_ims %}
+                                    {{ staff.start_date_in_ims|date:"d.m.Y" }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Radno iskustvo (god.):</td>
+                            <td>{{ years_experience }}</td>
+                        </tr>
+                        <tr>
+                            <td>Radno iskustvo IMS (god.):</td>
+                            <td>{{ years_experience }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            </div><!-- End Default Card -->
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Stručno iskustvo/iskustvo na ispitivanjima/ etaloniranju/kontrolisanju/ostalo</h5>
+                    <ul>       
+                        {% if professional_experience %}                 
+                            {% for exp in professional_experience %}
+                            <div class="d-flex justify-content-between align-items-start"> <!-- Align items to start for vertical alignment -->
+                                <li style="width: 90%;">{{ exp.experience }} </li> <!-- Set a fixed width for the li -->
+                                <div class="d-flex align-items-center">
+                                    <!-- Edit Button -->
+                                    <a href="{% url 'professional_experience_update' exp.pk %}" class="text-success me-3 d-flex align-items-center">
+                                        <i class="ri-edit-2-line"></i>
+                                    </a>
+                            
+                                    <!-- Delete Button -->
+                                    <form action="{% url 'professional_experience_delete' exp.pk %}" method="post" class="d-flex align-items-center" style="margin: 0; padding: 0;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link text-danger p-0 m-0 d-flex align-items-center" style="border: none; background: none; margin-bottom: 15px;" onclick="return confirm('Da li ste sigurni da želite da uklonite ovaj podatak?');">
+                                            <i class="ri-delete-bin-2-line"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            
+                            </div>
+                            <hr>
+                            {% endfor %}                    
+                        {% else %}
+                        Nema iskustvo
+                        {% endif %}
+                                            
+                    </ul>
+                    <a href="{% url 'professional_experience_create' staff.pk %}" class="text-success">
+                        <i class="ri-file-add-line"></i> Dodaj 
+                    </a>
+                </div>
+            </div><!-- End Default Card -->
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Obuke/usavršavanja</h5>
+                    <ul>       
+                        {% if training_courses %}                 
+                            {% for tc in training_courses %}
+                            <div class="d-flex justify-content-between align-items-start"> <!-- Align items to start for vertical alignment -->
+                                <li style="width: 90%;">{{ tc.training_course }} </li> <!-- Set a fixed width for the li -->
+                                <div class="d-flex align-items-center">
+                                    <!-- Edit Button -->
+                                    <a href="{% url 'training_course_update' tc.pk %}" class="text-success me-3 d-flex align-items-center">
+                                        <i class="ri-edit-2-line"></i>
+                                    </a>
+                            
+                                    <!-- Delete Button -->
+                                    <form action="{% url 'training_course_delete' tc.pk %}" method="post" class="d-flex align-items-center" style="margin: 0; padding: 0;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link text-danger p-0 m-0 d-flex align-items-center" style="border: none; background: none; margin-bottom: 15px;" onclick="return confirm('Da li ste sigurni da želite da uklonite ovaj podatak?');">
+                                            <i class="ri-delete-bin-2-line"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <hr>
+                            {% endfor %}                    
+                        {% else %}
+                        Nema obuke/usavrsavanja
+                        {% endif %}
+                                            
+                    </ul>
+                    <a href="{% url 'training_course_create' staff.pk %}" class="text-success">
+                        <i class="ri-file-add-line"></i> Dodaj 
+                    </a>
+                </div>
+            </div><!-- End Default Card -->
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Članstvo u međunarodnim i nacionalnim stručnim organizacijama</h5>
+                    <ul>       
+                        {% if membership_in_orgs %}                 
+                            {% for item in membership_in_orgs %}
+                            <div class="d-flex justify-content-between align-items-start"> <!-- Align items to start for vertical alignment -->
+                                <li style="width: 90%;">{{ item.organization_name }} </li> <!-- Set a fixed width for the li -->
+                                <div class="d-flex align-items-center">
+                                    <!-- Edit Button -->
+                                    <a href="{% url 'membership_international_org_update' item.pk %}" class="text-success me-3 d-flex align-items-center">
+                                        <i class="ri-edit-2-line"></i>
+                                    </a>
+                            
+                                    <!-- Delete Button -->
+                                    <form action="{% url 'membership_international_org_delete' item.pk %}" method="post" class="d-flex align-items-center" style="margin: 0; padding: 0;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link text-danger p-0 m-0 d-flex align-items-center" style="border: none; background: none; margin-bottom: 15px;" onclick="return confirm('Da li ste sigurni da želite da uklonite ovaj podatak?');">
+                                            <i class="ri-delete-bin-2-line"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <hr>
+                            {% endfor %}                    
+                        {% else %}
+                        Nije clan
+                        {% endif %}
+                                            
+                    </ul>
+                    <a href="{% url 'membership_international_org_create' staff.pk %}" class="text-success">
+                        <i class="ri-file-add-line"></i> Dodaj 
+                    </a>
+                </div>
+            </div><!-- End Default Card -->
+
+        </div>
+        <div class="col-lg-6">
+
+        <!-- Default Card -->
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">Radna mesta</h5>
+                    <a href="{% url 'staffjobposition_create' staff.id %}" class="text-success">
+                        <i class="ri-file-add-line"></i> Dodaj radno mesto
+                    </a>
+                </div>
+                <ul>
+                    {% for job_position in job_positions %}
+                    <li class="d-flex justify-content-between align-items-start">
+                        <!-- Job position and dates -->
+                        <span style="width: 80%;">
+                            <a href="{% url 'job_position_detail' job_position.job_position.pk %}">{{ job_position.job_position.title }} </a>
+                            ({{ job_position.start_date|date:"d.m.Y" }} - 
+                            {% if job_position.end_date %}{{ job_position.end_date|date:"d.m.Y" }}{% else %}Aktivno{% endif %})
+                        </span>
+                        
+                        <div class="d-flex align-items-center">
+                            <!-- Edit Button -->
+                            <a href="{% url 'staffjobposition_update' job_position.pk %}" class="text-success me-3 d-flex align-items-center">
+                                <i class="ri-edit-2-line"></i>
+                            </a>
+                    
+                            <!-- Delete Button -->
+                            <form action="{% url 'staffjobposition_delete' job_position.pk %}" method="post" class="d-flex align-items-center" style="margin: 0; padding: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link text-danger p-0 m-0 d-flex align-items-center" style="border: none; background: none; margin-bottom: 15px;" onclick="return confirm('Da li ste sigurni da želite da uklonite ovaj podatak?');">
+                                    <i class="ri-delete-bin-2-line"></i>
+                                </button>
+                            </form>
+                        </div>
+                    
+                    </li>
+                
+                    {% endfor %}
+                </ul>
+            </div>
+        </div><!-- End Default Card -->
+
+            <!-- Default Card -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ovlašćenja</h5>
+                    {% if authorizations %}
+                    <table id="DataTableAuthDetail" class="display compact">
+                        <thead>
+                          <tr>
+                            <th>Metoda</th>
+                            <th>Ovlašćenje</th>                    
+                            <th>Datum dodele</th>
+                            <th>AKCIJE</th>
+
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {% for authorization in authorizations %}
+                            <tr>  
+                                <td>{{ authorization.method }}</td>                  
+                                <td>{{ authorization.authorization_type }}</td>
+                                <td>{{ authorization.date|date:"d.m.Y" }}</td>
+                                <td style="width: 20px;">
+                                    <div class="d-flex align-items-center"> <!-- Flex row for horizontal alignment -->
+                                        <!-- Edit Button -->
+                                        <a href="{% url 'authorization_update' authorization.pk %}" class="text-success me-2"> <!-- Add margin-end for spacing -->
+                                            <i class="ri-edit-2-line"></i>
+                                        </a>
+                                    
+                                        <!-- Delete Form -->
+                                        <form action="{% url 'authorization_delete' authorization.pk %}?next={{ request.path }}" method="post" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-link text-danger p-0 m-0" onclick="return confirm('Da li ste sigurni da želite da uklonite ovu ovo OVLAŠĆENJE?');">
+                                                <i class="ri-delete-bin-2-line"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="9">Nema ovlašćenja</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    Nema ovlašćenja
+                    {% endif %}
+                </div>
+            </div><!-- End Default Card -->
+
+            <!-- Default Card -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Obuke za metode</h5>
+                    {% if method_trainings %}
+                    <table id="DataTableStaffA" class="display compact">
+                        <thead>
+                          <tr>
+                            <th>Metoda</th>
+                            <th>Obuka</th>                    
+                            <th>Dokument</th>
+                            <th>Datum</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {% for training in method_trainings %}
+                            <tr>  
+                                <td>{{ training.method }}</td>                  
+                                <td><a href="{% url 'training_detail' training.training.pk %}">{{ training.training.training_name }}</td>
+                                <td>                        
+                                    {% if training.training.report %}
+                                      <a href="{{ training.training.report.url }}" target="_blank">Izvestaj sa obuke</a>
+                                    {% else %}
+                                      Nema dokument
+                                    {% endif %}
+                                  </td>
+                                  <td>{{ training.training.start_date|date:"d.m.Y" }}</td> 
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="9">Nema obuke</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                        Nema obuke
+                    {% endif %}
+                </div>
+            </div><!-- End Default Card -->
+
+            <!-- Default Card -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Spisak obuka koje nisu za metode</h5>
+                    <ul>
+                        {% for training in no_method_trainings %}
+                        <li><a href="{% url 'training_detail' training.pk %}">{{training}}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div><!-- End Default Card -->
+            
+        </div>
+    </div>
+<section>
+{% endblock %}

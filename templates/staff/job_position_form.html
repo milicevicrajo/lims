@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Forma{% endblock %}
+{% block content %}
+<div class="pagetitle">
+    <h1>{{ title }}</h1>
+</div>
+
+<section class="section">
+    <div class="row align-items-top">
+        <!-- Left Column: Form -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Popuniti formu</h5>
+                    <!-- Horizontal Form -->
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="row mb-3">
+                            <label for="{{ field.id_for_label }}" class="col-sm-5 col-form-label">{{ field.label }}:</label>
+                            <div class="col-sm-7">
+                                {{ field|add_class:'form-control' }}
+                                {% if field.errors %}
+                                <div class="invalid-feedback" style="display: block;">
+                                    {% for error in field.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">{{ submit_button_label }}</button>
+                        </div>
+                    </form>
+                    <!-- End Horizontal Form -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Optional Content -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Dodatne Informacije</h5>
+                    <p>Pri unosu opisa radnog procesa, svaku sledeću stavku unositi u novom redu.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Optional Manual Section -->
+        {% if manual %}
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Priručnik</h5>
+                    <p>Ovde se mogu prikazati uputstva ili priručnik vezan za opremu.</p>
+                    <!-- Add your manual content here -->
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

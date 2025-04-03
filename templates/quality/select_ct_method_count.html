@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %} PT Metode {% endblock %}
+{% block content %}
+{% load widget_tweaks %}
+<div class="pagetitle">
+  <h1>Broj metoda u okviru novog Kontrolnog ispitivanja</h1>
+</div>
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Unos</h5>
+            <form method="GET" action="{% url 'control_testing_create' %}">
+                {% csrf_token %}
+                
+                {% for field in method_count_form %}
+                <div class="row mb-4">
+                    <label for="{{ field.id_for_label }}" class="col-sm-4 col-form-label">{{ field.label }}</label>
+                    <div class="col-sm-8">
+                        {{ field|add_class:'form-control' }}
+                        {% if field.errors %}
+                        <div class="invalid-feedback" style="display: block;">
+                            {% for error in field.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <button type="submit" class="btn btn-primary">Dalje na formu</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

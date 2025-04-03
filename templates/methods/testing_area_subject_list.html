@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %} Predmeti ispitivanja {% endblock %}
+{% block content %}
+
+<div class="pagetitle">
+  <h1>{{ title }}</h1>
+</div>
+
+<section class="section">
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title">Tabela sa OBLASTIMA ispitivanja</h5>
+            <a href="{% url 'testing_area_create' %}" class="text-success" style="font-size: 1.05em;">
+              <i class="bi bi-file-arrow-up"></i> Dodaj novu oblast ispitivanja
+            </a>
+          </div>         
+          <table id="DataTableArea" class="display">
+            <thead>
+              <tr>
+                <th>Naziv</th>
+                <th>Kod</th>
+                <th>AKCIJE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for testing_area in testing_areas %}
+                <tr>
+                  <td>{{ testing_area.area }}</td>
+                  <td>{{ testing_area.code }}</td>
+                  <td  style="width:20px">
+                    <div class="d-flex align-items-center">
+                      <!-- Link za izmenu -->
+                      <a href="{% url 'testing_area_update' testing_area.pk %}" class="text-success me-3">
+                          <i class="ri-edit-2-line"></i>
+                      </a>
+                      
+                      <!-- Forma za brisanje -->
+                      <form action="{% url 'testing_area_delete' testing_area.id %}" method="post" style="display:inline;">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-link text-danger p-0 m-0" onclick="return confirm('Da li ste sigurni da želite da uklonite ovu OBLAST ISPITIVANJA?');">
+                              <i class="ri-delete-bin-2-line"></i>
+                          </button>
+                      </form>
+                  </div>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4">Nema unetih oblasti ispitivanja</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title">Tabela sa PREDMETIMA ispitivanja</h5>
+            <a href="{% url 'test_subject_create' %}" class="text-success">
+              <i class="bi bi-file-arrow-up"></i> Dodaj novi predmet ispitivanaja
+            </a>
+          </div>         
+          <table id="DataTableSubject" class="display">
+            <thead>
+              <tr>
+                <th>Naziv</th>
+                <th>Kod</th>
+                <th>AKCIJE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for test_subject in test_subjects %}
+                <tr>
+                  <td>{{ test_subject.subject }}</td>
+                  <td>{{ test_subject.code }}</td>
+                  <td style="width:20px">
+                    <div class="d-flex align-items-center">
+                        <!-- Link za izmenu -->
+                        <a href="{% url 'test_subject_update' test_subject.pk %}" class="text-success me-3">
+                            <i class="ri-edit-2-line"></i>
+                        </a>
+                
+                        <!-- Forma za brisanje -->
+                        <form action="{% url 'test_subject_delete' test_subject.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link text-danger p-0 m-0" onclick="return confirm('Da li ste sigurni da želite da uklonite ovaj PREDMET ISPITIVANJA?');">
+                                <i class="ri-delete-bin-2-line"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+                
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4">Nema unetih predmeta ispitivanaja</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  $(document).ready(function() {
+    $('#TestingAreaTable').DataTable();
+    $('#TestSubjectTable').DataTable();
+});
+</script>
+
+{% endblock %}
