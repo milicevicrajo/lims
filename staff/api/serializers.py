@@ -1,29 +1,75 @@
 from rest_framework import serializers
-from core.models import Center, OrganizationalUnit, Laboratory, CustomUser
+from staff.models import (
+    Staff,
+    JobPosition,
+    StaffJobPosition,
+    ProfessionalExperience,
+    TrainingCourse,
+    MembershipInInternationalOrg,
+    Training,
+    TrainingTests,
+    Authorization,
+    AuthorizationType,
+    NoMethodAuthorization,
+    StaffMethodTraining
+)
 
-class CenterSerializer(serializers.ModelSerializer):
+class StaffSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Center
+        model = Staff
         fields = '__all__'
 
-class OrganizationalUnitSerializer(serializers.ModelSerializer):
-    center = CenterSerializer(read_only=True)
-
+class JobPositionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OrganizationalUnit
+        model = JobPosition
         fields = '__all__'
 
-class LaboratorySerializer(serializers.ModelSerializer):
-    organizational_unit = OrganizationalUnitSerializer(read_only=True)
-
+class StaffJobPositionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Laboratory
+        model = StaffJobPosition
         fields = '__all__'
 
-class UserSerializer(serializers.ModelSerializer):
-    laboratory = LaboratorySerializer(read_only=True)
-    laboratory_permissions = LaboratorySerializer(many=True, read_only=True)
-
+class ProfessionalExperienceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'role', 'laboratory', 'laboratory_permissions']
+        model = ProfessionalExperience
+        fields = '__all__'
+
+class TrainingCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrainingCourse
+        fields = '__all__'
+
+class MembershipInInternationalOrgSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MembershipInInternationalOrg
+        fields = '__all__'
+
+class TrainingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Training
+        fields = '__all__'
+
+class TrainingTestsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrainingTests
+        fields = '__all__'
+
+class AuthorizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Authorization
+        fields = '__all__'
+
+class AuthorizationTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AuthorizationType
+        fields = '__all__'
+
+class NoMethodAuthorizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NoMethodAuthorization
+        fields = '__all__'
+
+class StaffMethodTrainingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StaffMethodTraining
+        fields = '__all__'

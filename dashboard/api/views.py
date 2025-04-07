@@ -1,19 +1,16 @@
-from rest_framework import viewsets
-from core.models import Center, OrganizationalUnit, Laboratory, CustomUser
-from .serializers import CenterSerializer, OrganizationalUnitSerializer, LaboratorySerializer, UserSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from dashboard.views import get_upcoming_calibrations  # iskoristi postojeću funkciju
+from .serializers import CalibrationSerializer  # napravi serializer
 
-class CenterViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Center.objects.all()
-    serializer_class = CenterSerializer
+class UpcomingCalibrationsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
-class OrganizationalUnitViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = OrganizationalUnit.objects.select_related('center').all()
-    serializer_class = OrganizationalUnitSerializer
+    def get(self, request, format=None):
+        upcoming_calibrations = get_upcoming_calibrations(request.user)
 
-class LaboratoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Laboratory.objects.select_related('organizational_unit', 'organizational_unit__center').all()
-    serializer_class = LaboratorySerializer
+        # Serializuj podatke
+        serializer = CalibrationSerializer(upcoming_calibrations, many=True)
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = CustomUser.objects.select_related('laboratory').prefetch_related('laboratory_permissions').all()
-    serializer_class = UserSerializer
+        return Response(serializer.data)

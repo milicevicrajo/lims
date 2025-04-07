@@ -1,19 +1,77 @@
 from rest_framework import viewsets
-from core.models import Center, OrganizationalUnit, Laboratory, CustomUser
-from .serializers import CenterSerializer, OrganizationalUnitSerializer, LaboratorySerializer, UserSerializer
+from staff.models import (
+    Staff,
+    JobPosition,
+    StaffJobPosition,
+    ProfessionalExperience,
+    TrainingCourse,
+    MembershipInInternationalOrg,
+    Training,
+    TrainingTests,
+    Authorization,
+    AuthorizationType,
+    NoMethodAuthorization,
+    StaffMethodTraining
+)
+from .serializers import (
+    StaffSerializer,
+    JobPositionSerializer,
+    StaffJobPositionSerializer,
+    ProfessionalExperienceSerializer,
+    TrainingCourseSerializer,
+    MembershipInInternationalOrgSerializer,
+    TrainingSerializer,
+    TrainingTestsSerializer,
+    AuthorizationSerializer,
+    AuthorizationTypeSerializer,
+    NoMethodAuthorizationSerializer,
+    StaffMethodTrainingSerializer
+)
 
-class CenterViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Center.objects.all()
-    serializer_class = CenterSerializer
+class StaffViewSet(viewsets.ModelViewSet):
+    queryset = Staff.objects.all()
+    serializer_class = StaffSerializer
 
-class OrganizationalUnitViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = OrganizationalUnit.objects.select_related('center').all()
-    serializer_class = OrganizationalUnitSerializer
+class JobPositionViewSet(viewsets.ModelViewSet):
+    queryset = JobPosition.objects.all()
+    serializer_class = JobPositionSerializer
 
-class LaboratoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Laboratory.objects.select_related('organizational_unit', 'organizational_unit__center').all()
-    serializer_class = LaboratorySerializer
+class StaffJobPositionViewSet(viewsets.ModelViewSet):
+    queryset = StaffJobPosition.objects.all()
+    serializer_class = StaffJobPositionSerializer
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = CustomUser.objects.select_related('laboratory').prefetch_related('laboratory_permissions').all()
-    serializer_class = UserSerializer
+class ProfessionalExperienceViewSet(viewsets.ModelViewSet):
+    queryset = ProfessionalExperience.objects.all()
+    serializer_class = ProfessionalExperienceSerializer
+
+class TrainingCourseViewSet(viewsets.ModelViewSet):
+    queryset = TrainingCourse.objects.all()
+    serializer_class = TrainingCourseSerializer
+
+class MembershipInInternationalOrgViewSet(viewsets.ModelViewSet):
+    queryset = MembershipInInternationalOrg.objects.all()
+    serializer_class = MembershipInInternationalOrgSerializer
+
+class TrainingViewSet(viewsets.ModelViewSet):
+    queryset = Training.objects.all()
+    serializer_class = TrainingSerializer
+
+class TrainingTestsViewSet(viewsets.ModelViewSet):
+    queryset = TrainingTests.objects.all()
+    serializer_class = TrainingTestsSerializer
+
+class AuthorizationViewSet(viewsets.ModelViewSet):
+    queryset = Authorization.objects.all()
+    serializer_class = AuthorizationSerializer
+
+class AuthorizationTypeViewSet(viewsets.ModelViewSet):
+    queryset = AuthorizationType.objects.all()
+    serializer_class = AuthorizationTypeSerializer
+
+class NoMethodAuthorizationViewSet(viewsets.ModelViewSet):
+    queryset = NoMethodAuthorization.objects.all()
+    serializer_class = NoMethodAuthorizationSerializer
+
+class StaffMethodTrainingViewSet(viewsets.ModelViewSet):
+    queryset = StaffMethodTraining.objects.all()
+    serializer_class = StaffMethodTrainingSerializer

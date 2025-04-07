@@ -13,4 +13,4 @@ class EquipmentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]  # OVO MORA DA POSTOJI
 
     def get_queryset(self):
-        return get_user_laboratory_equipment()
+        return get_user_laboratory_equipment(user=self.request.user)

@@ -1,19 +1,35 @@
 from rest_framework import viewsets
-from core.models import Center, OrganizationalUnit, Laboratory, CustomUser
-from .serializers import CenterSerializer, OrganizationalUnitSerializer, LaboratorySerializer, UserSerializer
+from quality.models import (
+    PTScheme,
+    PTSchemeMethod,
+    ControlTesting,
+    ControlTestingMethod,
+    MeasurementUncertainty
+)
+from .serializers import (
+    PTSchemeSerializer,
+    PTSchemeMethodSerializer,
+    ControlTestingSerializer,
+    ControlTestingMethodSerializer,
+    MeasurementUncertaintySerializer
+)
 
-class CenterViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Center.objects.all()
-    serializer_class = CenterSerializer
+class PTSchemeViewSet(viewsets.ModelViewSet):
+    queryset = PTScheme.objects.all()
+    serializer_class = PTSchemeSerializer
 
-class OrganizationalUnitViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = OrganizationalUnit.objects.select_related('center').all()
-    serializer_class = OrganizationalUnitSerializer
+class PTSchemeMethodViewSet(viewsets.ModelViewSet):
+    queryset = PTSchemeMethod.objects.all()
+    serializer_class = PTSchemeMethodSerializer
 
-class LaboratoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Laboratory.objects.select_related('organizational_unit', 'organizational_unit__center').all()
-    serializer_class = LaboratorySerializer
+class ControlTestingViewSet(viewsets.ModelViewSet):
+    queryset = ControlTesting.objects.all()
+    serializer_class = ControlTestingSerializer
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = CustomUser.objects.select_related('laboratory').prefetch_related('laboratory_permissions').all()
-    serializer_class = UserSerializer
+class ControlTestingMethodViewSet(viewsets.ModelViewSet):
+    queryset = ControlTestingMethod.objects.all()
+    serializer_class = ControlTestingMethodSerializer
+
+class MeasurementUncertaintyViewSet(viewsets.ModelViewSet):
+    queryset = MeasurementUncertainty.objects.all()
+    serializer_class = MeasurementUncertaintySerializer

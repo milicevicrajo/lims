@@ -236,9 +236,12 @@ urlpatterns = [
     path('api/core/', include('core.api.urls')),  # ← dodaj ovo!    
     path('api/equipment/', include('equipment.api.urls')),  # API endpointi za opremu
     path('api/methods/', include('methods.api.urls')),
-    # path('api/quality/', include('quality.api.urls')),
-    # path('api/staff/', include('staff.api.urls')),
-    # path('api/documents/', include('documents.api.urls')),
+    path('api/quality/', include('quality.api.urls')),
+    path('api/staff/', include('staff.api.urls')),
+    path('api/documents/', include('documents.api.urls')),
+
+    path('api/dashboard/', include('dashboard.api.urls')),
+
 
     # path('download/', download_populated_document, name='download_populated_document'),
     # path('select2/', include('django_select2.urls')),

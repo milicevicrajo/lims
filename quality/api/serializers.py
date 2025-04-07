@@ -1,29 +1,33 @@
 from rest_framework import serializers
-from core.models import Center, OrganizationalUnit, Laboratory, CustomUser
+from quality.models import (
+    PTScheme,
+    PTSchemeMethod,
+    ControlTesting,
+    ControlTestingMethod,
+    MeasurementUncertainty
+)
 
-class CenterSerializer(serializers.ModelSerializer):
+class PTSchemeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Center
+        model = PTScheme
         fields = '__all__'
 
-class OrganizationalUnitSerializer(serializers.ModelSerializer):
-    center = CenterSerializer(read_only=True)
-
+class PTSchemeMethodSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OrganizationalUnit
+        model = PTSchemeMethod
         fields = '__all__'
 
-class LaboratorySerializer(serializers.ModelSerializer):
-    organizational_unit = OrganizationalUnitSerializer(read_only=True)
-
+class ControlTestingSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Laboratory
+        model = ControlTesting
         fields = '__all__'
 
-class UserSerializer(serializers.ModelSerializer):
-    laboratory = LaboratorySerializer(read_only=True)
-    laboratory_permissions = LaboratorySerializer(many=True, read_only=True)
-
+class ControlTestingMethodSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'role', 'laboratory', 'laboratory_permissions']
+        model = ControlTestingMethod
+        fields = '__all__'
+
+class MeasurementUncertaintySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MeasurementUncertainty
+        fields = '__all__'
