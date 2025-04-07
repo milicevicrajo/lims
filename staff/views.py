@@ -3,6 +3,8 @@ from django.db import IntegrityError
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DeleteView
+
+from staff.services import get_active_staff_queryset, get_staff_detail_context, get_staff_object
 from .models import *
 from .forms import *
 from django.views.generic import ListView, DetailView
@@ -14,39 +16,57 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.edit import FormView, UpdateView
 from lims.mixins import LaboratoryPermissionMixin
 from .filters import JobTypeFilter
+from .services import (
+    get_job_position_object,
+    get_job_position_context,
+    get_staff_job_position_initial,
+    get_staff_job_position_success_url
+)
+from .services import (
+    get_professional_experience_object,
+    get_professional_experience_initial,
+    get_professional_experience_success_url,
+    get_training_course_object,
+    get_training_course_initial,
+    get_training_course_success_url,
+    get_membership_object,
+    get_membership_initial,
+    get_membership_success_url
+)
+from .services import get_staff_job_position_object, get_staff_job_position_success_url
+from .services import (
+    get_training_object,
+    create_staff_method_trainings,
+    get_training_success_url,
+    get_training_test_success_url,
+)
+from .services import (
+    get_authorization_type_object,
+    get_authorization_type_success_url,
+)
+from .services import (
+    create_authorizations,
+    get_authorization_object,
+    get_authorization_success_url,
+)
+from .services import (
+    get_no_method_authorization_object,
+    get_no_method_authorization_success_url,
+)
 
-# STAFF
 @method_decorator(never_cache, name='dispatch')
 class StaffListView(LaboratoryPermissionMixin, ListView):
     model = Staff
     template_name = 'staff/staff_list.html'
 
-
     def get_queryset(self):
-        # Get the list of staff with active job positions
-        queryset = super().get_queryset().prefetch_related('staffjobposition_set__job_position')
-        queryset = queryset.filter(staffjobposition__end_date__isnull=True).distinct()
+        return get_active_staff_queryset()
 
-        # Calculate years of experience for each staff
-        today = date.today()
-        for staff in queryset:
-            if staff.start_date_in_profession:
-                years_experience = today.year - staff.start_date_in_profession.year - (
-                    (today.month, today.day) < (staff.start_date_in_profession.month, staff.start_date_in_profession.day)
-                )
-                staff.years_experience = years_experience
-            else:
-                staff.years_experience = None
-
-        return queryset
-    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        staff_list = context['staff_list']
         context['title'] = 'Spisak osoblja'
-
-
         return context
+
 
 class StaffCreateView(LoginRequiredMixin, CreateView):
     model = Staff
@@ -56,9 +76,12 @@ class StaffCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['submit_button_label'] = 'Potvrdi'
-        context['title'] = 'Dodaj novog zaposlenog'
+        context.update({
+            'submit_button_label': 'Potvrdi',
+            'title': 'Dodaj novog zaposlenog',
+        })
         return context
+
 
 class StaffDetailView(LoginRequiredMixin, DetailView):
     model = Staff
@@ -68,197 +91,171 @@ class StaffDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Detalji o osoblju'
-        staff = context['staff']
-
-        # Calculate years of experience in profession
-        if staff.start_date_in_profession:
-            today = date.today()
-            years_experience = today.year - staff.start_date_in_profession.year - (
-                (today.month, today.day) < (staff.start_date_in_profession.month, staff.start_date_in_profession.day)
-            )
-        else:
-            years_experience = None
-
-        # Calculate years of experience in IMS
-        if staff.start_date_in_ims:
-            years_experience_ims = today.year - staff.start_date_in_ims.year - (
-                (today.month, today.day) < (staff.start_date_in_ims.month, staff.start_date_in_ims.day)
-            )
-        else:
-            years_experience_ims = None
-
-        fields = [
-            (field.verbose_name, getattr(staff, field.name))
-            for field in Staff._meta.fields
-            if not field.name.startswith('_') and field.name != 'id'
-        ]
-
-        job_positions = StaffJobPosition.objects.filter(staff=staff)
-
-        context['fields'] = fields
-        context['job_positions'] = job_positions
-        context['professional_experience'] = ProfessionalExperience.objects.filter(staff=staff)
-        context['training_courses'] = TrainingCourse.objects.filter(staff=staff)
-        context['membership_in_orgs'] = MembershipInInternationalOrg.objects.filter(staff=staff)
-        context['years_experience'] = years_experience
-        context['years_experience_ims'] = years_experience_ims
-        context['authorizations'] = Authorization.objects.filter(staff=staff)
-        context['method_trainings'] = StaffMethodTraining.objects.filter(staff=staff)
-        context['no_method_trainings'] = Training.objects.filter(staff=staff, methods__isnull=True)
+        context.update(get_staff_detail_context(context['staff']))
         return context
-    
+
+
 class StaffUpdateView(LoginRequiredMixin, UpdateView):
     model = Staff
     form_class = StaffForm
     template_name = 'generic_form.html'
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        return kwargs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Ispravi karton osoblja'
-        context['submit_button_label'] = 'Potvrdi'
+        context.update({
+            'title': 'Ispravi karton osoblja',
+            'submit_button_label': 'Potvrdi',
+        })
         return context
-    
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        return form
-    
+
     def get_success_url(self):
-        # Define the success URL
         return reverse_lazy('staff_detail', kwargs={'pk': self.object.id})
-    
+
+
 class StaffDeleteView(LoginRequiredMixin, DeleteView):
     model = Staff
     success_url = reverse_lazy('staff_list')
+
     def get_object(self, queryset=None):
-        obj = Staff.objects.get(id=self.kwargs.get('pk'))
-        return obj
+        return get_staff_object(self.kwargs.get('pk'))
 
 # Views for JobPosition
 class JobPositionListView(LoginRequiredMixin, FilterView):
     model = JobPosition
     template_name = 'staff/job_position_list.html'
     context_object_name = 'job_positions'
-    filterset_class = JobTypeFilter 
+    filterset_class = JobTypeFilter
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Spisak radnih mesta po "Pravilniku o sistematizaciji poslova"'
+        context.update(get_job_position_context())
         return context
+
 
 class JobPositionDetailView(DetailView):
     model = JobPosition
-    template_name = 'staff/job_position_detail.html'  
-    context_object_name = 'job_position'  
+    template_name = 'staff/job_position_detail.html'
+    context_object_name = 'job_position'
+
 
 class JobPositionCreateView(LoginRequiredMixin, CreateView):
     model = JobPosition
     form_class = JobPositionForm
     template_name = 'staff/job_position_form.html'
     success_url = reverse_lazy('job_position_list')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Dodaj novu poziciju/radno mesto'
-        context['submit_button_label'] = 'Potvrdi'
+        context.update({
+            'title': 'Dodaj novu poziciju/radno mesto',
+            'submit_button_label': 'Potvrdi'
+        })
         return context
+
 
 class JobPositionUpdateView(LoginRequiredMixin, UpdateView):
     model = JobPosition
     form_class = JobPositionForm
     template_name = 'staff/job_position_form.html'
     success_url = reverse_lazy('job_position_list')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Ispravi poziciju/radno mesto'
-        context['submit_button_label'] = 'Potvrdi'
+        context.update({
+            'title': 'Ispravi poziciju/radno mesto',
+            'submit_button_label': 'Potvrdi'
+        })
         return context
-    
+
+
 class JobPositionDeleteView(LoginRequiredMixin, DeleteView):
     model = JobPosition
     template_name = 'ims/job_position/job_position_confirm_delete.html'
     success_url = reverse_lazy('job_position_list')
 
     def get_object(self, queryset=None):
-        obj = JobPosition.objects.get(id=self.kwargs.get('pk'))
-        return obj
+        return get_job_position_object(self.kwargs.get('pk'))
 
-# List all job positions for staff
+
+# Staff Job Position views
+
 class StaffJobPositionListView(ListView):
     model = StaffJobPosition
     template_name = 'staff/staffjobposition_list.html'
     context_object_name = 'positions'
 
-# Create a new job position for staff
+
 class StaffJobPositionCreateView(CreateView):
     model = StaffJobPosition
     form_class = StaffJobPositionForm
     template_name = 'generic_form.html'
     success_url = reverse_lazy('staffjobposition_list')
-    
+
     def get_initial(self):
         initial = super().get_initial()
-        staff_id = self.kwargs.get('staff_id', None)
-        if staff_id:
-            initial['staff'] = Staff.objects.get(id=staff_id)
+        initial.update(get_staff_job_position_initial(self.kwargs))
         return initial
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Dodeli radno mesto osoblju'
-        context['submit_button_label'] = 'Potvrdi'
+        context.update({
+            'title': 'Dodeli radno mesto osoblju',
+            'submit_button_label': 'Potvrdi'
+        })
         return context
-    
+
     def get_success_url(self):
-        return reverse_lazy('staff_detail', kwargs={'pk': self.object.staff.id})
+        return get_staff_job_position_success_url(self.object)
 
 # Update an existing job position for staff
+
+
 class StaffJobPositionUpdateView(UpdateView):
     model = StaffJobPosition
     form_class = StaffJobPositionForm
     template_name = 'ims/generic_form.html'
 
-
     def get_success_url(self):
-        return reverse_lazy('staff_detail', kwargs={'pk': self.object.staff.id})
+        return get_staff_job_position_success_url(self.object)
 
-# Delete an existing job position for staff
+
 class StaffJobPositionDeleteView(DeleteView):
     model = StaffJobPosition
 
+    def get_object(self, queryset=None):
+        return get_staff_job_position_object(self.kwargs.get('pk'))
+
     def get_success_url(self):
-        return reverse_lazy('staff_detail', kwargs={'pk': self.object.staff.id})
+        return get_staff_job_position_success_url(self.object)
+
+
+
 # Views for ProfessionalExperience
 class ProfessionalExperienceListView(LoginRequiredMixin, ListView):
     model = ProfessionalExperience
     template_name = 'staff/professional_experience_list.html'
     context_object_name = 'professional_experiences'
 
+
 class ProfessionalExperienceCreateView(LoginRequiredMixin, CreateView):
     model = ProfessionalExperience
     form_class = ProfessionalExperienceForm
     template_name = 'generic_form.html'
-    success_url = reverse_lazy('professional_experience_list')
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Dodaj profesionalno iskustvo'
-        context['submit_button_label'] = 'Potvrdi'
+        context.update({'title': 'Dodaj profesionalno iskustvo', 'submit_button_label': 'Potvrdi'})
         return context
-    
+
     def get_initial(self):
         initial = super().get_initial()
-        staff_id = self.kwargs.get('staff_id', None)
-        if staff_id:
-            initial['staff'] = Staff.objects.get(id=staff_id)
+        initial.update(get_professional_experience_initial(self.kwargs))
         return initial
-    
+
     def get_success_url(self):
-        # Define the success URL
-        return reverse_lazy('staff_detail', kwargs={'pk': self.object.staff.id})
-        
+        return get_professional_experience_success_url(self.object)
+
+
 class ProfessionalExperienceUpdateView(LoginRequiredMixin, UpdateView):
     model = ProfessionalExperience
     form_class = ProfessionalExperienceForm
@@ -266,23 +263,21 @@ class ProfessionalExperienceUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Ispravi profesionalno iskustvo'
-        context['submit_button_label'] = 'Potvrdi'
+        context.update({'title': 'Ispravi profesionalno iskustvo', 'submit_button_label': 'Potvrdi'})
         return context
-    
+
     def get_success_url(self):
-        # Define the success URL
-        return reverse_lazy('staff_detail', kwargs={'pk': self.object.staff.id})
-    
+        return get_professional_experience_success_url(self.object)
+
+
 class ProfessionalExperienceDeleteView(LoginRequiredMixin, DeleteView):
     model = ProfessionalExperience
 
     def get_object(self, queryset=None):
-        obj = get_object_or_404(ProfessionalExperience, id=self.kwargs.get('pk'))
-        return obj
+        return get_professional_experience_object(self.kwargs.get('pk'))
 
     def get_success_url(self):
-        return reverse_lazy('staff_detail', kwargs={'pk': self.object.staff.id})
+        return get_professional_experience_success_url(self.object)
     
 
 # Views for TrainingCourse
@@ -291,52 +286,49 @@ class TrainingCourseListView(LoginRequiredMixin, ListView):
     template_name = 'staff/training_course_list.html'
     context_object_name = 'training_courses'
 
+
 class TrainingCourseCreateView(LoginRequiredMixin, CreateView):
     model = TrainingCourse
     form_class = TrainingCourseForm
     template_name = 'generic_form.html'
-    success_url = reverse_lazy('training_course_list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Dodaj obuku/usavršavanje'
-        context['submit_button_label'] = 'Potvrdi'
+        context.update({'title': 'Dodaj obuku/usavršavanje', 'submit_button_label': 'Potvrdi'})
         return context
-    
+
     def get_initial(self):
         initial = super().get_initial()
-        staff_id = self.kwargs.get('staff_id', None)
-        if staff_id:
-            initial['staff'] = Staff.objects.get(id=staff_id)
+        initial.update(get_training_course_initial(self.kwargs))
         return initial
-    
+
     def get_success_url(self):
-        return reverse_lazy('staff_detail', kwargs={'pk': self.object.staff.id})
-    
+        return get_training_course_success_url(self.object)
+
+
 class TrainingCourseUpdateView(LoginRequiredMixin, UpdateView):
     model = TrainingCourse
     form_class = TrainingCourseForm
     template_name = 'generic_form.html'
-    success_url = reverse_lazy('training_course_list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Ispravi obuku/usavršavanje'
-        context['submit_button_label'] = 'Potvrdi'
+        context.update({'title': 'Ispravi obuku/usavršavanje', 'submit_button_label': 'Potvrdi'})
         return context
-    
+
     def get_success_url(self):
-        return reverse_lazy('staff_detail', kwargs={'pk': self.object.staff.id})
-    
+        return get_training_course_success_url(self.object)
+
+
 class TrainingCourseDeleteView(LoginRequiredMixin, DeleteView):
     model = TrainingCourse
 
     def get_object(self, queryset=None):
-        obj = TrainingCourse.objects.get(id=self.kwargs.get('pk'))
-        return obj
-    
+        return get_training_course_object(self.kwargs.get('pk'))
+
     def get_success_url(self):
-        return reverse_lazy('staff_detail', kwargs={'pk': self.object.staff.id})
+        return get_training_course_success_url(self.object)
+
     
 # Views for MembershipInInternationalOrg
 class MembershipInInternationalOrgListView(LoginRequiredMixin, ListView):
@@ -344,27 +336,26 @@ class MembershipInInternationalOrgListView(LoginRequiredMixin, ListView):
     template_name = 'staff/membership_international_org_list.html'
     context_object_name = 'memberships'
 
+
 class MembershipInInternationalOrgCreateView(LoginRequiredMixin, CreateView):
     model = MembershipInInternationalOrg
     form_class = MembershipInInternationalOrgForm
-    template_name = 'ims/generic_form.html'
+    template_name = 'generic_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Dodaj članstvo u organizaciji'
-        context['submit_button_label'] = 'Potvrdi'
+        context.update({'title': 'Dodaj članstvo u organizaciji', 'submit_button_label': 'Potvrdi'})
         return context
-    
+
     def get_initial(self):
         initial = super().get_initial()
-        staff_id = self.kwargs.get('staff_id', None)
-        if staff_id:
-            initial['staff'] = Staff.objects.get(id=staff_id)
+        initial.update(get_membership_initial(self.kwargs))
         return initial
-    
+
     def get_success_url(self):
-        return reverse_lazy('staff_detail', kwargs={'pk': self.object.staff.id})
-    
+        return get_membership_success_url(self.object)
+
+
 class MembershipInInternationalOrgUpdateView(LoginRequiredMixin, UpdateView):
     model = MembershipInInternationalOrg
     form_class = MembershipInInternationalOrgForm
@@ -372,21 +363,22 @@ class MembershipInInternationalOrgUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Ispravi članstvo u organizaciji'
-        context['submit_button_label'] = 'Potvrdi'
+        context.update({'title': 'Ispravi članstvo u organizaciji', 'submit_button_label': 'Potvrdi'})
         return context
-    
+
     def get_success_url(self):
-        return reverse_lazy('staff_detail', kwargs={'pk': self.object.staff.id})
+        return get_membership_success_url(self.object)
+
 
 class MembershipInInternationalOrgDeleteView(LoginRequiredMixin, DeleteView):
     model = MembershipInInternationalOrg
+
     def get_object(self, queryset=None):
-        obj = MembershipInInternationalOrg.objects.get(id=self.kwargs.get('pk'))
-        return obj
-    
+        return get_membership_object(self.kwargs.get('pk'))
+
     def get_success_url(self):
-        return reverse_lazy('staff_detail', kwargs={'pk': self.object.staff.id})
+        return get_membership_success_url(self.object)
+
     
 # TRAINING OBUKE
 @method_decorator(never_cache, name='dispatch')
@@ -425,24 +417,10 @@ class TrainingCreateView(LoginRequiredMixin, CreateView):
         context['title'] = 'Formiraj obuku'
         context['submit_button_label'] = 'Potvrdi'
         return context
-    
+
     def form_valid(self, form):
-        # Save the form and get the Training instance
         response = super().form_valid(form)
-        training = self.object
-
-        # Now create StaffMethodTraining records
-        methods = training.methods.all()
-        staff_members = training.staff.all()
-
-        if methods.exists() and staff_members.exists():
-            for staff in staff_members:
-                for method in methods:
-                    StaffMethodTraining.objects.get_or_create(
-                        staff=staff, method=method, training=training
-                    )
-
-        # Redirect to the success URL after creating the records
+        create_staff_method_trainings(self.object)
         return response
     
 class TrainingUpdateView(LoginRequiredMixin, UpdateView):
@@ -461,18 +439,15 @@ class TrainingTestUpdateView(UpdateView):
     model = TrainingTests
     form_class = TrainingTestForm
     template_name = 'generic_form.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Dodaj PDF test'
         context['submit_button_label'] = 'Sačuvaj'
         return context
-    
+
     def get_success_url(self):
-        next_url = self.request.GET.get('next')
-        if next_url:
-            return next_url
-        return reverse_lazy('training_list')
+        return get_training_test_success_url(self.request)
     
 class TrainingDeleteView(LoginRequiredMixin, DeleteView):
     model = Training
@@ -480,8 +455,7 @@ class TrainingDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('training_list')
 
     def get_object(self, queryset=None):
-        obj = Training.objects.get(id=self.kwargs.get('pk'))
-        return obj
+        return get_training_object(self.kwargs.get('pk'))
 
 # Views for AuthorizationType
 class AuthorizationTypeListView(LoginRequiredMixin, ListView):
@@ -494,39 +468,42 @@ class AuthorizationTypeListView(LoginRequiredMixin, ListView):
         context['title'] = 'Spisak tipova ovlašćenja u laboratorijama'
         context['submit_button_label'] = 'Potvrdi'
         return context
-    
+
+
 class AuthorizationTypeCreateView(LoginRequiredMixin, CreateView):
     model = AuthorizationType
     form_class = AuthorizationTypeForm
     template_name = 'generic_form.html'
-    success_url = reverse_lazy('authorization_type_list')
+    success_url = get_authorization_type_success_url()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Kreiraj novi tip ovlašćenja'
         context['submit_button_label'] = 'Potvrdi'
         return context
-    
+
+
 class AuthorizationTypeUpdateView(LoginRequiredMixin, UpdateView):
     model = AuthorizationType
     form_class = AuthorizationTypeForm
     template_name = 'generic_form.html'
-    success_url = reverse_lazy('authorization_type_list')
+    success_url = get_authorization_type_success_url()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Ispravi tip ovlašćenja'
         context['submit_button_label'] = 'Potvrdi'
         return context
-    
+
+
 class AuthorizationTypeDeleteView(LoginRequiredMixin, DeleteView):
     model = AuthorizationType
     template_name = 'staff/authorization_type_confirm_delete.html'
-    success_url = reverse_lazy('authorization_type_list')
+    success_url = get_authorization_type_success_url()
 
     def get_object(self, queryset=None):
-        obj = AuthorizationType.objects.get(id=self.kwargs.get('pk'))
-        return obj
+        return get_authorization_type_object(self.kwargs.get('pk'))
+
 
 # Views for Authorization
 @method_decorator(never_cache, name='dispatch')
@@ -539,7 +516,8 @@ class AuthorizationListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Ovlašćenja'
         return context
-    
+
+
 class AuthorizationCreateView(LoginRequiredMixin, FormView):
     form_class = AuthorizationForm
     template_name = 'generic_form.html'
@@ -552,26 +530,12 @@ class AuthorizationCreateView(LoginRequiredMixin, FormView):
         return context
 
     def form_valid(self, form):
-        staff_members = form.cleaned_data['staff']  # This is a queryset of Staff instances
+        staff_members = form.cleaned_data['staff']
         methods = form.cleaned_data['methods']
         authorization_types = form.cleaned_data['authorization_type']
         date = form.cleaned_data['date']
 
-        # Create Authorization records for each combination of staff, method, and authorization type
-        for staff in staff_members:  # Ensure you're iterating over the queryset
-            for method in methods:
-                for auth_type in authorization_types:
-                    try:
-                        # Create or get an Authorization instance for each staff-method-auth type combination
-                        Authorization.objects.create(
-                            staff=staff,  # Single staff instance, not the whole queryset
-                            method=method,
-                            authorization_type=auth_type,
-                            date=date
-                        )
-                    except IntegrityError:
-                        # Handle duplicates if necessary
-                        continue
+        create_authorizations(staff_members, methods, authorization_types, date)
 
         return super().form_valid(form)
 
@@ -586,48 +550,51 @@ class AuthorizationUpdateView(LoginRequiredMixin, UpdateView):
         context['title'] = 'Ispravi ovlašćenja'
         context['submit_button_label'] = 'Potvrdi'
         return context
-    
+
     def get_success_url(self):
-        next_url = self.request.GET.get('next')
-        if next_url:
-            return next_url
-        return reverse_lazy('authorization_list')
-    
+        return get_authorization_success_url(self.request)
+
+
 class AuthorizationDeleteView(LoginRequiredMixin, DeleteView):
     model = Authorization
 
     def get_object(self, queryset=None):
-        obj = Authorization.objects.get(id=self.kwargs.get('pk'))
-        return obj
-    
+        return get_authorization_object(self.kwargs.get('pk'))
+
     def get_success_url(self):
-        next_url = self.request.GET.get('next')
-        if next_url:
-            return next_url
-        return reverse_lazy('authorization_list')
-    
-# List View
-class NoMethodAuthorizationListView(ListView):
+        return get_authorization_success_url(self.request)
+
+# Views for NoMethodAuthorization
+class NoMethodAuthorizationListView(LoginRequiredMixin, ListView):
     model = NoMethodAuthorization
     template_name = 'staff/authorization_list_nomethod.html'
     context_object_name = 'authorizations'
 
-# Create View
-class NoMethodAuthorizationCreateView(CreateView):
+
+class NoMethodAuthorizationCreateView(LoginRequiredMixin, CreateView):
     model = NoMethodAuthorization
     form_class = NoMethodAuthorizationForm
     template_name = 'generic_form.html'
-    success_url = reverse_lazy('no_method_authorization_list')
 
-# Update View
-class NoMethodAuthorizationUpdateView(UpdateView):
+    def get_success_url(self):
+        return get_no_method_authorization_success_url(self.request)
+
+
+class NoMethodAuthorizationUpdateView(LoginRequiredMixin, UpdateView):
     model = NoMethodAuthorization
     form_class = NoMethodAuthorizationForm
-    template_name = 'no_method_authorization_form.html'
-    success_url = reverse_lazy('no_method_authorization_list')
+    template_name = 'generic_form.html'
 
-# Delete View
-class NoMethodAuthorizationDeleteView(DeleteView):
+    def get_success_url(self):
+        return get_no_method_authorization_success_url(self.request)
+
+
+class NoMethodAuthorizationDeleteView(LoginRequiredMixin, DeleteView):
     model = NoMethodAuthorization
-    template_name = 'no_method_authorization_confirm_delete.html'
-    success_url = reverse_lazy('no_method_authorization_list')
+    template_name = 'generic_form.html'
+
+    def get_object(self, queryset=None):
+        return get_no_method_authorization_object(self.kwargs.get('pk'))
+
+    def get_success_url(self):
+        return get_no_method_authorization_success_url(self.request)

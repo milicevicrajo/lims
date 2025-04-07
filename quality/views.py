@@ -7,6 +7,8 @@ from django.forms import inlineformset_factory
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.mixins import LoginRequiredMixin
+
+from quality.services import get_empty_pt_scheme_method_formset, get_pt_scheme_fields, process_pt_scheme_form
 from .models import PTScheme, PTSchemeMethod, ControlTesting, ControlTestingMethod, MeasurementUncertainty
 from .forms import PTSchemeMethodForm, SelectMethodCountForm, PTSchemeForm, ControlTestingMethodForm, ControlTestingForm, MeasurementUncertaintyForm
 
@@ -26,13 +28,7 @@ class PTSchemeDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         method = self.get_object()
         
-        fields = [
-            (field.verbose_name, getattr(method, field.name))
-            for field in PTScheme._meta.fields
-            if not field.name.startswith('_') and field.name != 'id'
-        ]
-        
-        context['fields'] = fields
+        context['fields'] = get_pt_scheme_fields(self.object)
         context['methods'] = PTSchemeMethod.objects.filter(pt_scheme=self.object)
         return context
 
@@ -40,70 +36,48 @@ class PTSchemeCreateView(View):
     template_name = 'quality/pt_scheme_form.html'
 
     def get(self, request, *args, **kwargs):
-        # Check if the user has already submitted the number of methods
-        if 'number_of_methods' in request.GET:
-            number_of_methods = int(request.GET['number_of_methods'])
-            # Create the formset using the helper function
-            PTSchemeMethodFormSet = create_pt_scheme_method_formset(number_of_methods)
-            method_formset = PTSchemeMethodFormSet()
-            scheme_form = PTSchemeForm()
-            
+        number_of_methods = request.GET.get('number_of_methods')
+
+        if number_of_methods:
+            number_of_methods = int(number_of_methods)
+            # Ovde dodaš user:
+            scheme_form = PTSchemeForm(user=request.user)
+            method_formset = get_empty_pt_scheme_method_formset(number_of_methods)
+
             return render(request, self.template_name, {
                 'scheme_form': scheme_form,
                 'method_formset': method_formset,
                 'number_of_methods': number_of_methods,
             })
-        
-        # Show the method count selection form
+
         method_count_form = SelectMethodCountForm()
         return render(request, 'quality/select_method_count.html', {'method_count_form': method_count_form})
 
     def post(self, request, *args, **kwargs):
-        print("POST request received.")
-        
-        # Handle the PT scheme form and the formset after method count has been selected
-        if 'number_of_methods' in request.POST:
-            number_of_methods = int(request.POST['number_of_methods'])
-            print(f"Number of methods (POST): {number_of_methods}")
-            
-            # Create the formset using the helper function
-            PTSchemeMethodFormSet = create_pt_scheme_method_formset(number_of_methods)
-            scheme_form = PTSchemeForm(request.POST, request.FILES)
-            method_formset = PTSchemeMethodFormSet(request.POST, request.FILES)
-            
-            if scheme_form.is_valid() and method_formset.is_valid():
-                print("Both forms are valid. Saving the PT Scheme and Methods.")
-                pt_scheme = scheme_form.save()
-                
-                # Set the instance of the formset to the saved PT scheme
-                method_formset.instance = pt_scheme
-                method_formset.save()
-                
-                return redirect(reverse_lazy('pt_scheme_list'))  # Adjust this to your URL
-            else:
-                print("Form validation failed.")
-                print(f"Scheme form errors: {scheme_form.errors}")
-                print(f"Method formset errors: {method_formset.errors}")
-            
+        number_of_methods = request.POST.get('number_of_methods')
+
+        if number_of_methods:
+            number_of_methods = int(number_of_methods)
+
+            # Prosledi request.user ovde
+            pt_scheme, scheme_form, method_formset = process_pt_scheme_form(
+                request.POST,
+                request.FILES,
+                number_of_methods,
+                user=request.user  # <--- DODAJ USER OVDE
+            )
+
+            if pt_scheme:
+                return redirect(reverse_lazy('pt_scheme_list'))
+
             return render(request, self.template_name, {
                 'scheme_form': scheme_form,
                 'method_formset': method_formset,
                 'number_of_methods': number_of_methods,
             })
 
-        # If the number_of_methods is missing, redirect to the method count form
-        print("Number of methods not found in POST request.")
         return redirect('select_method_count')
 
-# Helper function to create the formset with the desired number of forms
-def create_pt_scheme_method_formset(number_of_methods):
-    return inlineformset_factory(
-        PTScheme, PTSchemeMethod,
-        form=PTSchemeMethodForm,
-        extra=number_of_methods,  # Pass the number of extra forms here
-        can_delete=True  # Optional: allow deletion of forms
-    )
-   
 class PTSchemeUpdateView(LoginRequiredMixin, UpdateView):    
     model = PTScheme
     form_class = PTSchemeForm
@@ -121,8 +95,6 @@ class PTSchemeUpdateView(LoginRequiredMixin, UpdateView):
         if next_url:
             return next_url
         return reverse_lazy('pt_scheme_list')
-
-
 
 
 class PTSchemeMethodUpdateView(LoginRequiredMixin, UpdateView):
@@ -173,78 +145,73 @@ class ControlTestingDetailView(DetailView):
         context['methods'] = ControlTestingMethod.objects.filter(control_test=self.object)
         return context
 
+from .services import create_control_testing_method_formset, create_control_testing, create_measurement_uncertainty, delete_measurement_uncertainty, update_control_testing, delete_control_testing, update_measurement_uncertainty
+
 class ControlTestingCreateView(View):
     template_name = 'quality/control_testing_form.html'
 
     def get(self, request, *args, **kwargs):
-        # Check if the user has already submitted the number of methods
         if 'number_of_methods' in request.GET:
             number_of_methods = int(request.GET['number_of_methods'])
-            
-            # Create the formset using the helper function
             ControlTestingMethodFormSet = create_control_testing_method_formset(number_of_methods)
-            method_formset = ControlTestingMethodFormSet()
-            control_form = ControlTestingForm()
-            
             return render(request, self.template_name, {
-                'control_form': control_form,
-                'method_formset': method_formset,
+                'control_form': ControlTestingForm(),
+                'method_formset': ControlTestingMethodFormSet(),
                 'number_of_methods': number_of_methods,
             })
-        
-        # Show the method count selection form
-        method_count_form = SelectMethodCountForm()
-        return render(request, 'quality/select_ct_method_count.html', {'method_count_form': method_count_form})
+
+        return render(request, 'quality/select_ct_method_count.html', {'method_count_form': SelectMethodCountForm()})
 
     def post(self, request, *args, **kwargs):
-        # Handle the ControlTesting form and the formset after method count has been selected
         if 'number_of_methods' in request.POST:
             number_of_methods = int(request.POST['number_of_methods'])
-            
-            # Create the formset using the helper function
-            ControlTestingMethodFormSet = create_control_testing_method_formset(number_of_methods)
-            control_form = ControlTestingForm(request.POST, request.FILES)
-            method_formset = ControlTestingMethodFormSet(request.POST, request.FILES)
-            
-            if control_form.is_valid() and method_formset.is_valid():
-                control_testing = control_form.save()
-                
-                # Set the instance of the formset to the saved control testing
-                method_formset.instance = control_testing
-                method_formset.save()
-                
-                return redirect(reverse_lazy('control_testing_list'))  # Adjust this to your URL
-            
+            control_testing, control_form, method_formset = create_control_testing(request.POST, request.FILES, number_of_methods)
+
+            if control_testing:
+                return redirect(reverse_lazy('control_testing_list'))
+
             return render(request, self.template_name, {
                 'control_form': control_form,
                 'method_formset': method_formset,
                 'number_of_methods': number_of_methods,
             })
 
-        # Redirect back to the method count form if something goes wrong
         return redirect('select_method_count')
 
-def create_control_testing_method_formset(number_of_methods):
-    return inlineformset_factory(
-        ControlTesting, ControlTestingMethod,
-        form=ControlTestingMethodForm,
-        extra=number_of_methods,
-        can_delete=True  # Optional: allow form deletion
-    )
 
 class ControlTestingUpdateView(UpdateView):
     model = ControlTesting
     form_class = ControlTestingForm
     template_name = 'generic_form.html'
-    success_url = reverse_lazy('control_testing_list')  # Adjust this to your URL
+    success_url = reverse_lazy('control_testing_list')
+
+    def form_valid(self, form):
+        success, errors = update_control_testing(self.get_object(), self.request.POST, self.request.FILES)
+        if success:
+            return super().form_valid(form)
+        else:
+            form.add_error(None, errors)
+            return self.form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context['updating'] = True  # You can use this in the template to show it's an update
-        context['submit_button_label'] = 'Potvrdi'
-        context['title'] = f'Ispravi podatke o metodi unutar kontrolnog ispitivanja {self.get_object()}'
+        context.update({
+            'updating': True,
+            'submit_button_label': 'Potvrdi',
+            'title': f'Ispravi podatke o metodi unutar kontrolnog ispitivanja {self.get_object()}'
+        })
         return context
+
+
+class ControlTestingDeleteView(LoginRequiredMixin, DeleteView):
+    model = ControlTesting
+    template_name = 'quality/control_testing_confirm_delete.html'
+    success_url = reverse_lazy('control_testing_list')
+
+    def delete(self, request, *args, **kwargs):
+        delete_control_testing(self.kwargs.get('pk'))
+        return redirect(self.success_url)
+
 
 
 class ControlTestingDeleteView(LoginRequiredMixin, DeleteView):
@@ -268,17 +235,29 @@ class MeasurementUncertaintyCreateView(LoginRequiredMixin, CreateView):
     template_name = 'generic_form.html'
     success_url = reverse_lazy('measurement_uncertainties_list')
 
+    def form_valid(self, form):
+        # Cleaned data iz forme
+        create_measurement_uncertainty(form.cleaned_data, self.request.user)
+        return super().form_valid(form)
+
+
 class MeasurementUncertaintyUpdateView(LoginRequiredMixin, UpdateView):
     model = MeasurementUncertainty
     form_class = MeasurementUncertaintyForm
     template_name = 'generic_form.html'
     success_url = reverse_lazy('measurement_uncertainties_list')
 
+    def form_valid(self, form):
+        update_measurement_uncertainty(self.object, form.cleaned_data)
+        return super().form_valid(form)
+
+
 class MeasurementUncertaintyDeleteView(LoginRequiredMixin, DeleteView):
     model = MeasurementUncertainty
     template_name = 'quality/measurement_uncertainty_confirm_delete.html'
     success_url = reverse_lazy('measurement_uncertainties_list')
 
-    def get_object(self, queryset=None):
-        obj = MeasurementUncertainty.objects.get(id=self.kwargs.get('pk'))
-        return obj
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        delete_measurement_uncertainty(instance)
+        return super().delete(request, *args, **kwargs)

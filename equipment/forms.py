@@ -12,20 +12,22 @@ class EquipmentForm(forms.ModelForm):
     )
 
     purchase_date = forms.DateField(
-        widget=forms.DateInput(format='%d/%m/%Y', attrs={'class': 'form-control', 'type': 'date'}),
+        widget=forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
         input_formats=['%d/%m/%Y', '%Y-%m-%d'],
         label="Datum nabavke"
     )
+
     usage_start_date = forms.DateField(
-        widget=forms.DateInput(format='%d/%m/%Y', attrs={'class': 'form-control', 'type': 'date'}),
+        widget=forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'type': 'date'}),
         input_formats=['%d/%m/%Y', '%Y-%m-%d'],
         label="Datum stavljanja u upotrebu"
     )
-    
+
     main_equipment = forms.ModelChoiceField(
-        queryset=Equipment.objects.filter(equipment_type = "Glavna"),
-        widget=Select2Widget(),
-        label="Glavna oprema"
+        queryset=Equipment.objects.filter(equipment_type="Glavna"),
+        widget=Select2Widget(attrs={'class': 'select2-method'}),
+        label="Glavna oprema",
+        required=False
     )
 
     class Meta:
@@ -33,62 +35,49 @@ class EquipmentForm(forms.ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)  # Ensure that user is passed to the form
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        self.fields['main_equipment'].required = False  # Explicitly setting required to False
 
-        if user and user.laboratory:
-            org_unit = user.laboratory.organizational_unit
-            self.fields['main_equipment'].queryset = Equipment.objects.filter(
-                equipment_type="Glavna",
-                responsible_laboratory__organizational_unit=org_unit
-            ).distinct()
-
-
-        if self.instance.id:  # Check if instance is being updated
-            self.initial['purchase_date'] = self.instance.purchase_date.strftime('%Y-%m-%d')
-            self.initial['usage_start_date'] = self.instance.usage_start_date.strftime('%Y-%m-%d')
-
-        if user and user.is_superuser or user.role == 'admin':
-            self.fields['responsible_laboratory'] = forms.ModelChoiceField(
-                queryset=Laboratory.objects.all(),
-                required=True,
-                label="Odgovorna laboratorija",
-                widget=Select2Widget(attrs={'class': 'select2-method'}),
-            )
-        else:
-            # Automatically set the responsible laboratory for non-superusers if not already set
-            self.fields['responsible_laboratory'] = forms.ModelChoiceField(
-                queryset=Laboratory.objects.filter(id=user.laboratory.id),
-                initial=user.laboratory.id,
-                label="Odgovorna laboratorija",
-                widget=forms.HiddenInput(),  # Hide field for non-superusers
-                required=False
+        # Ako user postoji, filtriraj podatke po korisniku
+        if user:
+            # Filtriraj izbor glavne opreme prema organizacionoj jedinici usera
+            if hasattr(user, 'laboratory') and user.laboratory:
+                org_unit = user.laboratory.organizational_unit
+                self.fields['main_equipment'].queryset = Equipment.objects.filter(
+                    equipment_type="Glavna",
+                    responsible_laboratory__organizational_unit=org_unit
                 )
-            self.instance.responsible_laboratory = user.laboratory
 
+            # Kontrola odgovorne laboratorije
+            if user.is_superuser or getattr(user, 'role', None) == 'admin':
+                self.fields['responsible_laboratory'] = forms.ModelChoiceField(
+                    queryset=Laboratory.objects.all(),
+                    required=True,
+                    label="Odgovorna laboratorija",
+                    widget=Select2Widget(attrs={'class': 'select2-method'}),
+                )
+            else:
+                # Automatski postavi laboratoriju za običnog korisnika
+                self.fields['responsible_laboratory'] = forms.ModelChoiceField(
+                    queryset=Laboratory.objects.filter(id=user.laboratory.id),
+                    initial=user.laboratory.id,
+                    label="Odgovorna laboratorija",
+                    widget=forms.HiddenInput(),
+                    required=False
+                )
+                self.instance.responsible_laboratory = user.laboratory
+
+        # Formatiranje datuma kod prikaza forme
+        if self.instance.pk:
+            if self.instance.purchase_date:
+                self.initial['purchase_date'] = self.instance.purchase_date.strftime('%Y-%m-%d')
+            if self.instance.usage_start_date:
+                self.initial['usage_start_date'] = self.instance.usage_start_date.strftime('%Y-%m-%d')
+
+    # Clean metoda za dodatnu sigurnost ako treba da procesuiraš liste
     def clean_laboratory(self):
-        laboratory = self.cleaned_data.get('laboratory', [])
-        return laboratory
+        return self.cleaned_data.get('laboratory', [])
     
-    def clean(self):
-        cleaned_data = super().clean()
-        card_number = cleaned_data.get('card_number')
-        responsible_laboratory = cleaned_data.get('responsible_laboratory')
-
-        if card_number and responsible_laboratory:
-            org_unit = responsible_laboratory.organizational_unit
-
-            if Equipment.objects.filter(
-                card_number=card_number,
-                responsible_laboratory__organizational_unit=org_unit
-            ).exclude(pk=self.instance.pk).exists():
-                raise ValidationError({
-                    'card_number': "Broj kartona već postoji u organizacionoj jedinici."
-                })
-
-        return cleaned_data
-
     
 class CalibrationForm(forms.ModelForm):
     calibration_date = forms.DateField(
@@ -116,12 +105,6 @@ class CalibrationForm(forms.ModelForm):
         if not user.is_superuser:
             self.fields['equipment'].queryset = Equipment.objects.filter(responsible_laboratory__in=user.laboratory_permissions.all())
 
-    # def clean_equipment(self):
-    #     equipment = self.cleaned_data.get('equipment')
-    #     if equipment.responsible_laboratory != self.user.laboratory:
-    #         print(equipment.responsible_laboratory,self.user.laboratory)
-    #         raise forms.ValidationError("This equipment does not belong to your laboratory.")
-    #     return equipment
 
 class InternalControlForm(forms.ModelForm):
     last_control_date = forms.DateField(

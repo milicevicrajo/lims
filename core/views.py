@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.decorators import login_required
+from core.services import get_all_centers
 from equipment.models import Equipment, Calibration
 from datetime import datetime, timedelta
 from django.db.models import OuterRef, Subquery, F
@@ -11,12 +12,19 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import CustomUser, Laboratory, Center, OrganizationalUnit
 from .forms import CustomUserCreationForm, CenterForm, OrganizationalUnitForm, LaboratoryForm
 from django.views.generic.edit import UpdateView, DeleteView
+from .services import (
+    get_all_organizational_units,
+    get_all_laboratories,
+)
 
 ### CENTER ###
 class CenterListView(ListView):
     model = Center
     template_name = 'core/center_list.html'
     context_object_name = 'centers'
+
+    def get_queryset(self):
+        return get_all_centers()
 
 class CenterCreateView(CreateView):
     model = Center
@@ -29,7 +37,7 @@ class CenterCreateView(CreateView):
         context['title'] = 'Kreiraj centar'
         context['submit_button_label'] = 'Potvrdi'
         return context
-    
+
 class CenterUpdateView(UpdateView):
     model = Center
     form_class = CenterForm
@@ -41,17 +49,21 @@ class CenterUpdateView(UpdateView):
         context['title'] = 'Prepravi centar'
         context['submit_button_label'] = 'Potvrdi'
         return context
-    
+
 class CenterDeleteView(DeleteView):
     model = Center
     template_name = 'core/center_confirm_delete.html'
     success_url = reverse_lazy('center_list')
 
 ### ORGANIZATIONAL UNIT ###
+# Organizational Unit Views
 class OrgUnitListView(ListView):
     model = OrganizationalUnit
     template_name = 'core/orgunit_list.html'
     context_object_name = 'orgunits'
+
+    def get_queryset(self):
+        return get_all_organizational_units()
 
 class OrgUnitCreateView(CreateView):
     model = OrganizationalUnit
@@ -61,7 +73,7 @@ class OrgUnitCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Dodaj organizacionu jedinicu'  
+        context['title'] = 'Dodaj organizacionu jedinicu'
         context['submit_button_label'] = 'Potvrdi'
         return context
 
@@ -73,7 +85,7 @@ class OrgUnitUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Prepravi organizacionu jedinicu' 
+        context['title'] = 'Prepravi organizacionu jedinicu'
         context['submit_button_label'] = 'Potvrdi'
         return context
 
@@ -88,6 +100,9 @@ class LaboratoryListView(ListView):
     template_name = 'core/laboratory_list.html'
     context_object_name = 'laboratories'
 
+    def get_queryset(self):
+        return get_all_laboratories()
+
 class LaboratoryCreateView(CreateView):
     model = Laboratory
     form_class = LaboratoryForm
@@ -96,7 +111,7 @@ class LaboratoryCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Dodaj laboratoriju'  # Set your custom title here
+        context['title'] = 'Dodaj laboratoriju'
         context['submit_button_label'] = 'Potvrdi'
         return context
 
@@ -108,7 +123,7 @@ class LaboratoryUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Dodaj novog korisnika'  # Set your custom title here
+        context['title'] = 'Prepravi laboratoriju'
         context['submit_button_label'] = 'Potvrdi'
         return context
 
@@ -125,7 +140,8 @@ from .models import CustomUser
 from .forms import CustomUserCreationForm
 from django.utils.translation import gettext_lazy as _
 
-### LIST VIEW
+from .services import get_all_users, create_user, update_user
+
 class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = CustomUser
     template_name = 'core/user_list.html'
@@ -134,8 +150,10 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def test_func(self):
         return self.request.user.is_superuser or self.request.user.role == 'admin'
 
+    def get_queryset(self):
+        return get_all_users()
 
-### CREATE VIEW
+
 class CustomUserCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = CustomUser
     form_class = CustomUserCreationForm
@@ -152,17 +170,13 @@ class CustomUserCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        user = form.save(commit=False)
-        user.set_password(form.cleaned_data['password'])
-        user.save()
-        form.save_m2m()
+        create_user(form)
         return super().form_valid(form)
 
 
-### UPDATE VIEW
 class CustomUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = CustomUser
-    form_class = CustomUserCreationForm  # napravi ovaj form ako ti treba
+    form_class = CustomUserCreationForm
     template_name = 'generic_form.html'
     success_url = reverse_lazy('user_list')
 
@@ -175,8 +189,11 @@ class CustomUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         context['submit_button_label'] = _('Sačuvaj izmene')
         return context
 
+    def form_valid(self, form):
+        update_user(form)
+        return super().form_valid(form)
 
-### DELETE VIEW
+
 class CustomUserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = CustomUser
     template_name = 'core/user_confirm_delete.html'
@@ -184,6 +201,7 @@ class CustomUserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self):
         return self.request.user.is_superuser
+
 
 
 def login_view(request):
@@ -210,49 +228,3 @@ def logout_view(request):
 def error404(request):  
     return render(request, 'core/error404.html')
 
-@login_required
-def index(request):
-    # Assume user is logged in and user object is available
-    user = request.user
-    user_laboratories = user.laboratory_permissions.all()
-
-    # Get current date and date one month from now
-    current_date = datetime.today().date()
-    one_month_from_now = current_date + timedelta(days=30)
-
-    # Get equipment IDs where rashodovana is False and laboratory is in user's laboratories
-    equipment_ids = Equipment.objects.filter(
-        is_rashodovana=False,
-        laboratory__in=user_laboratories
-    ).values_list('id', flat=True)
-
-    # Subquery to get the latest calibration date for each equipment
-    latest_calibration_subquery = Calibration.objects.filter(
-        equipment_id=OuterRef('equipment_id')
-    ).order_by('-next_calibration_date').values('next_calibration_date')[:1]
-
-    # Annotate each calibration with the latest calibration date for its equipment
-    calibrations_with_latest_date = Calibration.objects.annotate(
-        latest_calibration_date=Subquery(latest_calibration_subquery)
-    )
-
-    # Filter calibrations to get those expiring in the next 30 days or already expired
-    upcoming_expirations = calibrations_with_latest_date.filter(
-        latest_calibration_date__lte=one_month_from_now,
-        latest_calibration_date=F('next_calibration_date'),
-        equipment_id__in=equipment_ids
-    )
-
-    # Print the results for debugging
-    print(upcoming_expirations)
-
-    # # Create forms
-    # pomocna_form = PomocnaEquipmentGroupForm()
-    # plan_form = EquipmentGroupForm()
-
-    context = {
-        'upcoming_calibrations': upcoming_expirations,
-        # 'pomocna_form': pomocna_form,
-        # 'plan_form': plan_form
-    }
-    return render(request, 'core/index.html', context)

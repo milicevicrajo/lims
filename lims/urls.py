@@ -29,11 +29,10 @@ from quality.views import *
 from staff.views import *
 from documents.views import *
 from rest_framework.authtoken.views import obtain_auth_token
-
+from dashboard.views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
     # CORE
     path('', index, name='index'),
     path('error404/', error404, name='error404'),
@@ -80,7 +79,7 @@ urlpatterns = [
     path('equipment/<int:pk>/edit/', EquipmentUpdate.as_view(), name='equipment_edit'),
     path('equipment/<int:pk>/delete/', EquipmentDelete.as_view(), name='equipment_delete'),
     path('equipment/<int:pk>/', EquipmentDetailView.as_view(), name='equipment_detail'),
-    path('userequipment/', UserLabEquipmentListView.as_view(), name='user_equipment_list'),
+    # path('userequipment/', UserLabEquipmentListView.as_view(), name='user_equipment_list'),
     path('equipment/<int:equipment_id>/change_status/', change_rashodovana_status, name='change_rashodovana_status'),
     path('rashodovana_equipment/', RashodovanaEquipmentListView.as_view(), name='rashodovana_equipment_list'),
     path('equipment/<int:pk>/select_pomocna/', SelectPomocnaEquipmentView.as_view(), name='select_pomocna_equipment'),
@@ -105,7 +104,6 @@ urlpatterns = [
     path('internal_control/<int:pk>/select_kontrolna/', SelectControllingDevicesView.as_view(), name='select_kontrolna_equipment'),
 
     # REPAIR
-    path('repair/', RepairsListView.as_view(), name='repair'),
     path('repairl/add', RepairCreate.as_view(), name='repair_add_new'),
     path('repair/add/<int:equipment_id>/', RepairCreate.as_view(), name='repair_add'),
     path('repair/<int:pk>/', RepairDetail.as_view(), name='repair_detail'),
@@ -234,11 +232,18 @@ urlpatterns = [
     path('documents/<int:document_id>/versions/', DocumentVersionListView.as_view(), name='documentversion_list'),
     path('documents/version/<int:pk>/download/', DownloadDocumentView.as_view(), name='documentversion_download'),
 
-    path('api/', include('equipment.api.urls')),  # API endpointi
     path('api/token/', obtain_auth_token),  # ovo dodaj da bi mogao da koristiš token za pristup API-ju
+    path('api/core/', include('core.api.urls')),  # ← dodaj ovo!    
     path('api/equipment/', include('equipment.api.urls')),  # API endpointi za opremu
+    path('api/methods/', include('methods.api.urls')),
+    # path('api/quality/', include('quality.api.urls')),
+    # path('api/staff/', include('staff.api.urls')),
+    # path('api/documents/', include('documents.api.urls')),
 
     # path('download/', download_populated_document, name='download_populated_document'),
     # path('select2/', include('django_select2.urls')),
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -38,6 +38,8 @@
                         <td>
                           {% if standard.document %}
                             <a href="{{ standard.document.url }}" target="_blank">{{ standard.reference_document_name }}</a>
+                            <a href="{{ standard.document.url }}" target="_blank" rel="noopener noreferrer">{{ reference_document_name }}</a>
+
                           {% else %}
                             {{ standard.reference_document_name }}
                           {% endif %}

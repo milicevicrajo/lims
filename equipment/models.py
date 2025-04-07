@@ -6,7 +6,7 @@ from django.urls import reverse
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 import os
-
+from django.core.exceptions import ValidationError
 
 class Equipment(models.Model):
     EQUIPMENT_TYPE_CHOICES = [
@@ -52,6 +52,23 @@ class Equipment(models.Model):
     
     def get_absolute_url(self):
         return reverse('equipment_detail', args=[str(self.id)])
+    
+    def clean(self):
+        super().clean()
+
+        if self.card_number and self.responsible_laboratory:
+            org_unit = self.responsible_laboratory.organizational_unit
+
+            # Postoji li već oprema sa istim brojem u toj jedinici?
+            exists = Equipment.objects.filter(
+                card_number=self.card_number,
+                responsible_laboratory__organizational_unit=org_unit
+            ).exclude(pk=self.pk).exists()
+
+            if exists:
+                raise ValidationError({
+                    'card_number': "Broj kartona već postoji u organizacionoj jedinici."
+                })
     
     def save(self, *args, **kwargs):
         if self.equipment_type == 'Glavna':
