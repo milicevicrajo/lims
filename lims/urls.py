@@ -30,6 +30,7 @@ from staff.views import *
 from documents.views import *
 from rest_framework.authtoken.views import obtain_auth_token
 from dashboard.views import index
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -241,6 +242,15 @@ urlpatterns = [
     path('api/documents/', include('documents.api.urls')),
 
     path('api/dashboard/', include('dashboard.api.urls')),
+    
+    # API schema:
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    
+    # Swagger UI:
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+
+    # ReDoc:
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
 
     # path('download/', download_populated_document, name='download_populated_document'),

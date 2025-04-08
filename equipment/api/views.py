@@ -1,16 +1,31 @@
 from rest_framework import viewsets
-from equipment.models import Equipment
-from equipment.api.serializers import EquipmentSerializer
-from equipment.services import get_user_laboratory_equipment
-from django_filters.rest_framework import DjangoFilterBackend
-from equipment.filters import EquipmentFilter  # gde ti se već nalazifrom rest_framework.permissions import IsAuthenticated
-from rest_framework.permissions import IsAuthenticated
+from drf_spectacular.utils import extend_schema
+from equipment.models import Equipment, Calibration, InternalControl, Repair
+from .serializers import (
+    EquipmentSerializer,
+    CalibrationSerializer,
+    InternalControlSerializer,
+    RepairSerializer,
+)
 
+@extend_schema(tags=['Equipment'])
 class EquipmentViewSet(viewsets.ModelViewSet):
+    queryset = Equipment.objects.all()
     serializer_class = EquipmentSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = EquipmentFilter
-    permission_classes = [IsAuthenticated]  # OVO MORA DA POSTOJI
 
-    def get_queryset(self):
-        return get_user_laboratory_equipment(user=self.request.user)
+@extend_schema(tags=['Calibration'])
+class CalibrationViewSet(viewsets.ModelViewSet):
+    queryset = Calibration.objects.all()
+    serializer_class = CalibrationSerializer
+
+@extend_schema(tags=['Internal Control'])
+class InternalControlViewSet(viewsets.ModelViewSet):
+    queryset = InternalControl.objects.all()
+    serializer_class = InternalControlSerializer
+
+@extend_schema(tags=['Repair'])
+class RepairViewSet(viewsets.ModelViewSet):
+    queryset = Repair.objects.all()
+    serializer_class = RepairSerializer
+
+
