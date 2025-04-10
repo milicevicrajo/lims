@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from dashboard.views import get_upcoming_calibrations  # iskoristi postojeću funkciju
+from dashboard.services import get_upcoming_calibrations  # iskoristi postojeću funkciju
 from .serializers import CalibrationSerializer  # napravi serializer
 
 class UpcomingCalibrationsAPIView(APIView):

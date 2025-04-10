@@ -1,7 +1,21 @@
 
 
-from documents.models import DocumentVersion
+from documents.models import DocumentVersion, Document
 
+def create_document(data, user):
+    document = Document(**data)
+    document.user = user  # ako ima user field
+    document.save()
+    return document
+
+def update_document(instance, data):
+    for attr, value in data.items():
+        setattr(instance, attr, value)
+    instance.save()
+    return instance
+
+def delete_document(instance):
+    instance.delete()
 
 def get_documents_with_current_version(documents):
     for doc in documents:

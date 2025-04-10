@@ -8,22 +8,18 @@ from django.conf import settings
 import os
 from django.core.exceptions import ValidationError
 
+class EquipmentGroup(models.Model):
+    name = models.CharField(_("Naziv grupe"), max_length=255)
+    description = models.TextField(_("Opis grupe"), max_length=255, blank=True)
+
+    def __str__(self):
+        return self.name
 class Equipment(models.Model):
     EQUIPMENT_TYPE_CHOICES = [
         ('Glavna', 'Glavna'),
         ('Pomocna', 'Pomocna'),
     ]
 
-    EQUIPMENT_GROUP_CHOICES = [
-        ('Termometri', 'Termometri'),
-        ('Komparateri', 'Komparateri'),
-        ('Vage', 'Vage'),
-        ('Manometri', 'Manometri'),
-        ('Transdjuseri', 'Transdjuseri'),
-        ('Aparati', 'Aparati'),
-        ('Merni prsten', 'Merni prsten'),
-        ('Ostalo', 'Ostalo'),
-    ]
 
     card_number = models.CharField(_("Broj kartona"), max_length=255)
     name = models.CharField(_("Naziv opreme"), max_length=255)
@@ -44,7 +40,7 @@ class Equipment(models.Model):
 
     # POMOCNA OPREMA
     main_equipment = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='related_equipments', verbose_name=_("Glavna oprema"))
-    group = models.CharField(_("Grupa"), max_length=20, choices=EQUIPMENT_GROUP_CHOICES, null=True, blank=True)
+    equipment_group = models.ForeignKey(EquipmentGroup, verbose_name=_("Grupa opreme"), on_delete=models.SET_NULL, null=True, blank=True, related_name='equipments')
 
     # New field for tracking if the equipment is out of use (rashodovana)
     is_rashodovana = models.BooleanField(_("Rashodovana"), default=False, editable=False)
@@ -77,6 +73,7 @@ class Equipment(models.Model):
 
     def __str__(self):
         return self.card_number
+
 
 class Calibration(models.Model):
 

@@ -12,7 +12,7 @@ from django.contrib import messages
 from lims.mixins import QualityOrSuperuserMixin
 
 from .services import get_documents_with_current_version, get_file_response
-
+from .services import handle_document_version_creation
 class DocumentListView(LoginRequiredMixin, FilterView):
     model = Document
     template_name = 'documentation/document_list.html'
@@ -66,7 +66,7 @@ class DocumentToggleStatusView(QualityOrSuperuserMixin, View):
         return redirect('document-detail', pk=pk)
 
 
-from .services import handle_document_version_creation
+
 
 class DocumentVersionCreateView(LoginRequiredMixin, CreateView):
     model = DocumentVersion

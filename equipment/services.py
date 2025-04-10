@@ -196,6 +196,18 @@ def create_internal_control(data, user):
     except IntegrityError:
         raise ValidationError("Došlo je do greške prilikom čuvanja interne kontrole.")
 
+def update_internal_control(internal_control, data, user):
+    for field, value in data.items():
+        setattr(internal_control, field, value)
+
+    internal_control.user = user
+
+    try:
+        internal_control.save()
+        return internal_control
+    except Exception as e:
+        raise ValidationError(f'Greška prilikom ažuriranja interne kontrole: {str(e)}')
+
 
 def add_controlling_device(internal_control, equipment):
     internal_control.controlling_devices.add(equipment)

@@ -37,7 +37,7 @@ class EquipmentFilter(django_filters.FilterSet):
 
     class Meta:
         model = Equipment
-        fields = ['center', 'organizational_unit', 'responsible_laboratory', 'equipment_type', 'group']
+        fields = ['center', 'organizational_unit', 'responsible_laboratory', 'equipment_type','equipment_group']
 
     
 
@@ -52,4 +52,4 @@ class UserLabEquipmentFilter(django_filters.FilterSet):
 
     class Meta:
         model = Equipment
-        fields = ['card_number', 'name', 'equipment_type', 'group']
+        fields = ['card_number', 'name', 'equipment_type','equipment_group']
